@@ -89,7 +89,12 @@ function ask(rl: ReturnType<typeof createInterface>, prompt: string): Promise<st
 
 async function repl() {
     const client = new McpClient(SERVER_BIN);
-    const rl = createInterface({ input: process.stdin, output: process.stdout });
+    const rl = createInterface({
+        input:       process.stdin,
+        output:      process.stdout,
+        history:     [],
+        historySize: 100,
+    });
 
     try {
         await connect(client);
@@ -97,6 +102,7 @@ async function repl() {
         while (true) {
             const line = await ask(rl, "raven> ");
             if (line === "quit") break;
+            if (!line.trim()) continue;
 
             const parts    = line.split(" ");
             const cmd      = parts[0];
@@ -109,6 +115,10 @@ async function repl() {
                         printToolList(tools);
                         break;
                     case "call":
+                        if (!toolName) {
+                            console.log("Usage: call <tool> [key=value ...]");
+                            break;
+                        }
                         const args = parseArgs(parts.slice(2));
 
                         const result = await client.callTool(toolName!, args);

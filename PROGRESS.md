@@ -73,6 +73,11 @@ A TypeScript + Bun MCP client for [raven-nest-mcp](https://github.com/tidynest/r
 - 16 tests, 28 assertions, all passing
 - Discovered server behaviors: severity title-casing, report saves to file, graceful invalid ID handling
 
+### Step 12 — REPL polish (2026-03-14)
+- Empty input handling: blank lines re-prompt silently instead of printing "Unknown command"
+- Missing tool name validation: `call` without a tool name shows usage hint
+- Command history: up/down arrow cycles through previous commands (readline `history` option)
+
 ## Next Steps
 
 Pick one to continue:
