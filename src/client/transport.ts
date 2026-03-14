@@ -37,6 +37,10 @@ export class StdioTransport {
     /** Spawn the Rust binary and kick off the background stdout reader.
      *  All three stdio channels are piped so we own the full data flow. */
     async start(): Promise<void> {
+        if (!await Bun.file(this.binPath).exists()) {
+            throw new Error(`Server binary not found: ${this.binPath}`);
+        }
+
         this.proc = Bun.spawn([this.binPath], {
             stdin:  "pipe",   // we write JSON-RPC requests here
             stdout: "pipe",   // server writes JSON-RPC responses here

@@ -84,13 +84,22 @@ A TypeScript + Bun MCP client for [raven-nest-mcp](https://github.com/tidynest/r
 - Works in both one-shot (`bun run index.ts describe ping_target`) and REPL (`describe ping_target`) modes
 - Updated help text and usage messages to include `describe`
 
+### Step 14 — Server binary existence check (2026-03-14)
+- Added `Bun.file(binPath).exists()` guard in `transport.ts:start()` before `Bun.spawn()`
+- Wrong/missing path now gives `"Server binary not found: /path/to/binary"` instead of a cryptic OS error
+- 3 lines, early-return pattern
+
+### Step 15 — README accuracy fix (2026-03-14)
+- Updated test count: 3 → 16 tests, 11 → 28 assertions
+- Added `describe <tool>` to the commands list
+
 ## Next Steps
 
-Pick one to continue:
+See the additions plan (steps 16-33) for the full roadmap. Next up:
 
-1. **More tool tests** — test additional tools beyond `ping_target` in the test suite
-2. **Tab completion** — autocomplete tool names in the REPL
-3. **Output formatting** — pretty-print JSON tool responses
+1. **Request timeouts** — reject pending Promises after configurable timeout
+2. **Tool list caching** — avoid repeated `tools/list` calls mid-session
+3. **Stderr capture** — surface server errors/panics from the child process
 
 ## Key Learnings
 

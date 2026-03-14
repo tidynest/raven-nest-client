@@ -28,7 +28,7 @@ RAVEN_SERVER=/path/to/raven-server
 ```bash
 bun run index.ts
 ```
-Commands: `list`, `call <tool> [key=value ...]`, `help`, `quit`
+Commands: `list`, `call <tool> [key=value ...]`, `describe <tool>`, `help`, `quit`
 
 **List available tools:**
 ```bash
@@ -46,7 +46,7 @@ bun run index.ts call ping_target target=127.0.0.1
 bun test
 ```
 
-Runs integration tests against the real server (3 tests, 11 assertions).
+Runs integration tests against the real server (16 tests, 28 assertions).
 
 ## Project structure
 
