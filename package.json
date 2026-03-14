@@ -1,0 +1,19 @@
+{
+  "name": "raven-nest-client",
+  "version": "0.1.0",
+  "description": "TypeScript MCP client for raven-nest-mcp",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun run index.ts",
+    "test": "bun test"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
