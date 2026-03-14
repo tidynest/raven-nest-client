@@ -64,6 +64,14 @@ A TypeScript + Bun MCP client for [raven-nest-mcp](https://github.com/tidynest/r
 - Added `.claude/` and `CLAUDE.md` to `.gitignore`
 - Added MIT LICENSE
 - Replaced bun-init README template with project documentation
+- First commit (`v0.1.0`) pushed to [GitHub](https://github.com/tidynest/raven-nest-client) and [GitLab](https://gitlab.com/tidynest/raven-nest-client)
+
+### Step 11 — Extended test suite (2026-03-14)
+- Added Findings CRUD tests: save → get → list → delete — full data lifecycle with self-cleanup
+- Added Report generation tests: empty report format, report with saved finding includes severity
+- Added Error handling tests: nonexistent tool, missing required params, invalid finding ID
+- 16 tests, 28 assertions, all passing
+- Discovered server behaviors: severity title-casing, report saves to file, graceful invalid ID handling
 
 ## Next Steps
 
