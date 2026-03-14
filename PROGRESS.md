@@ -78,13 +78,19 @@ A TypeScript + Bun MCP client for [raven-nest-mcp](https://github.com/tidynest/r
 - Missing tool name validation: `call` without a tool name shows usage hint
 - Command history: up/down arrow cycles through previous commands (readline `history` option)
 
+### Step 13 — CLI polish (2026-03-14)
+- Added ANSI colour output: amber tool names, dim descriptions, cyan labels, red errors, green connection, magenta prompt
+- Added `describe <tool>` command showing full parameter schema with types, required/optional tags, and descriptions
+- Works in both one-shot (`bun run index.ts describe ping_target`) and REPL (`describe ping_target`) modes
+- Updated help text and usage messages to include `describe`
+
 ## Next Steps
 
 Pick one to continue:
 
-1. **CLI polish** — coloured output, `describe <tool>` command showing full schema
-2. **More tool tests** — test additional tools beyond `ping_target` in the test suite
-3. **REPL polish** — missing tool name validation, empty input handling, command history
+1. **More tool tests** — test additional tools beyond `ping_target` in the test suite
+2. **Tab completion** — autocomplete tool names in the REPL
+3. **Output formatting** — pretty-print JSON tool responses
 
 ## Key Learnings
 
