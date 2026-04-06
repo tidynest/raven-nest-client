@@ -37,9 +37,9 @@ bun run index.ts
 
 **One-shot commands:**
 ```bash
-bun run index.ts list                              # list all tools
-bun run index.ts call ping_target target=127.0.0.1 # call a tool
-bun run index.ts describe run_nmap                 # show tool details
+bun run index.ts list                                # list all tools
+bun run index.ts call ping_target target=127.0.0.1   # call a tool
+bun run index.ts describe run_nmap                   # show tool details
 ```
 
 **Flags:**
