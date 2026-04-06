@@ -99,12 +99,12 @@ bun test src/
 docker start juice-shop infallible_satoshi
 
 # Run individual phases (execution order matters)
-bun test tests/e2e/phase1-pure.test.ts          # pure functions, no server
-bun test tests/e2e/phase2-repl.test.ts           # REPL code paths
-bun test tests/e2e/phase5-edge.test.ts           # edge cases
-bun test tests/e2e/phase3-security.test.ts       # nmap, whatweb, nikto, nuclei
-bun test tests/e2e/phase3b-remaining-tools.test.ts  # all other tools + Metasploit
-bun test tests/e2e/phase4-progress.test.ts          # progress/stderr separation
+bun test tests/e2e/phase1-pure.test.ts                # pure functions, no server
+bun test tests/e2e/phase2-repl.test.ts                # REPL code paths
+bun test tests/e2e/phase5-edge.test.ts                # edge cases
+bun test tests/e2e/phase3-security.test.ts            # nmap, whatweb, nikto, nuclei
+bun test tests/e2e/phase3b-remaining-tools.test.ts    # all other tools + Metasploit
+bun test tests/e2e/phase4-progress.test.ts            # progress/stderr separation
 
 # Stop targets
 docker stop juice-shop infallible_satoshi
