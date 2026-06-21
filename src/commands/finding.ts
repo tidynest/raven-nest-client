@@ -42,7 +42,7 @@ export async function handleFindingCommand(
                     return;
                 }
             }
-            const result = await helpers.saveFinding(typed as SaveFindingParams);
+            const result = await helpers.saveFinding(typed as unknown as SaveFindingParams);
             console.log(`${c.ok}Saved:${c.reset} ${result}`);
             return;
         }

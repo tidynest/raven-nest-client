@@ -1,7 +1,7 @@
 # raven-nest-client
 
 TypeScript MCP client for [raven-nest-mcp](https://github.com/tidynest/raven-nest-mcp).
-Speaks JSON-RPC 2.0 over stdio to the Rust MCP server (v0.3, 34 tools).
+Speaks JSON-RPC 2.0 over stdio to the Rust MCP server (v0.3, 41 tools).
 
 ## Requirements
 
@@ -65,17 +65,19 @@ bun run index.ts --no-color   # disable ANSI colours
 | | `finding get <id>` | Retrieve a finding |
 | | `finding delete <id>` | Delete a finding |
 | | `findings` | List all findings |
-| | `report [title=...]` | Generate a report |
+| | `report [title=...] [format=...]` | Generate a report (md/json/sarif/html) |
+| **Engagement** | `engagement set <name>` | Switch/create the active engagement |
+| | `engagements` | List engagements (active marked) |
 | **Session** | `help` | Show available commands |
 | | `quit` | Exit the REPL |
 
 Tab completion is available for tool names (after `call` or `describe`) and command names.
 
-### Server tools (34)
+### Server tools (41)
 
-**Recon:** ping_target, run_nmap, run_whatweb, run_nuclei, run_nikto, run_subfinder, run_dnsrecon, run_wpscan, run_masscan
+**Recon:** ping_target, run_nmap, run_whatweb, run_nuclei, run_nikto, run_subfinder, run_dnsrecon, run_wpscan, run_masscan, run_httpx, run_dnsx, run_katana
 
-**Exploitation:** run_sqlmap, run_hydra, run_feroxbuster, run_ffuf, run_testssl, run_enum4linux_ng, run_john, run_dalfox
+**Exploitation:** run_sqlmap, run_hydra, run_feroxbuster, run_ffuf, run_testssl, run_enum4linux_ng, run_john, run_dalfox, run_netexec
 
 **Metasploit (6):** msf_search, msf_module_info, msf_exploit, msf_auxiliary, msf_sessions, msf_post
 
@@ -83,7 +85,11 @@ Tab completion is available for tool names (after `call` or `describe`) and comm
 
 **Background scans (5):** launch_scan, get_scan_status, get_scan_results, cancel_scan, list_scans
 
-**Findings (5):** save_finding, get_finding, list_findings, delete_finding, generate_report
+**Findings (6):** save_finding, get_finding, list_findings, list_findings_by_scan, delete_finding, generate_report
+
+**Engagement (2):** set_engagement, list_engagements
+
+Reports are multi-format: `generate_report` defaults to Markdown; pass `format=json|sarif|html` (e.g. `report format=sarif`) for the other formats.
 
 ## Tests
 
@@ -91,7 +97,7 @@ Tab completion is available for tool names (after `call` or `describe`) and comm
 ```bash
 bun test src/
 ```
-39 tests, 56 assertions — handshake, tool calls, finding CRUD, scan lifecycle, caching, errors.
+43 tests, 59 assertions — handshake, tool calls, finding CRUD, scan lifecycle, engagement scoping, caching, errors.
 
 **E2E tests** (require Docker targets + server config):
 ```bash
@@ -110,7 +116,7 @@ bun test tests/e2e/phase4-progress.test.ts            # progress/stderr separati
 docker stop juice-shop infallible_satoshi
 ```
 
-61 E2E tests covering all 34 server tools against Juice Shop (port 3000) and bWAPP (port 80).
+61 E2E tests covering 34 of the server tools against Juice Shop (port 3000) and bWAPP (port 80).
 Metasploit tests require `msfrpcd` running on port 55553.
 
 ## Project structure
@@ -121,16 +127,17 @@ Metasploit tests require `msfrpcd` running on port 55553.
 | `src/config.ts` | Shared config — server binary + config paths (env-overridable) |
 | `src/client/mcp-client.ts` | High-level MCP client — handshake, tool listing/caching, tool calls |
 | `src/client/transport.ts` | Stdio transport — JSON-RPC over stdin/stdout, timeouts, stderr capture, notification dispatch, config env injection |
-| `src/client/helpers.ts` | Typed wrappers — finding CRUD, scan management, report generation |
+| `src/client/helpers.ts` | Typed wrappers — finding CRUD, scan management, engagement scoping, report generation |
 | `src/commands/scan.ts` | REPL scan subcommand dispatcher |
 | `src/commands/finding.ts` | REPL finding subcommand dispatcher |
+| `src/commands/engagement.ts` | REPL engagement subcommand dispatcher |
 | `src/types/jsonrpc.ts` | JSON-RPC 2.0 types + notification type |
 | `src/types/mcp.ts` | MCP protocol types + logging notification params |
 | `src/types/finding.ts` | Finding and severity types |
 | `src/types/scan.ts` | Scan status and parameter types |
 | `src/client/mcp-client.test.ts` | Integration tests — handshake, tools, findings, scans, caching, errors |
 | `src/client/helpers.test.ts` | Helper layer tests — typed finding/scan wrappers |
-| `tests/e2e/` | E2E tests — all 34 tools against Docker targets (6 files, 61 tests) |
+| `tests/e2e/` | E2E tests — 34 tools against Docker targets (6 files, 61 tests) |
 
 See [docs/architecture.md](docs/architecture.md) for the layered architecture and data flow.
 

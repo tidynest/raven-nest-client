@@ -20,8 +20,11 @@ describe("McpClient", () => {
 
         // Verify the server returned expected protocol metadata
         expect(handshake.protocolVersion).toBe("2025-03-26");
-        expect(handshake.serverInfo.name).toBe("rmcp");
-        expect(handshake.serverInfo.version).toMatch("1.1.0");
+        expect(handshake.serverInfo.name).toBe("raven-nest");
+        // Server sets its own server_info in get_info(), so this tracks the
+        // raven-nest product version, not the rmcp SDK crate. Match the semver
+        // shape rather than a pinned number so version bumps don't break it.
+        expect(handshake.serverInfo.version).toMatch(/^\d+\.\d+\.\d+/);
         expect(handshake.capabilities).toHaveProperty("tools");
     });
 

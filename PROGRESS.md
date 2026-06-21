@@ -208,11 +208,29 @@ A TypeScript + Bun MCP client for [raven-nest-mcp](https://github.com/tidynest/r
 - Overridable via `RAVEN_CONFIG` env var (same as `RAVEN_SERVER` for the binary path)
 - **Fix:** server was silently using built-in defaults when spawned from any CWD other than the server project root, losing `tool_paths` (wpscan), `sudo_tools` (masscan/nmap), `[metasploit]` config, and custom timeouts
 
+### Step 41 — structuredContent decoupling (2026-06-22)
+- `ToolCallResult` gained `structuredContent?: Record<string, unknown>` (`src/types/mcp.ts`) — the MCP machine-readable result channel the server now attaches to finding/scan/engagement tools
+- Added private `structured<T>(result, key)` to `RavenHelpers`; `saveFinding` prefers the structured `finding_id`, `deleteFinding` prefers the `deleted` flag, each falling back to text parsing
+- Stops relying on fragile string parsing where the server exposes structured fields
+- Bumped the handshake assertion `1.1.0` → `1.7.0` (rmcp 1.7 SDK; note: this tracks the rmcp crate version, not raven-server)
+
+### Step 42 — Engagement command (2026-06-22)
+- Added `setEngagement`, `listEngagements`, `activeEngagement` to `RavenHelpers` (`activeEngagement` reads `structuredContent.active`)
+- Created `src/commands/engagement.ts` — `handleEngagementCommand()` dispatching set/list, returning the active name so the REPL can refresh its prompt
+- Wired `engagement`/`engagements` into the REPL (dispatch, tab completion, help); the prompt now shows the active engagement, e.g. `raven (acme)>`
+- Added `src/commands/engagement.test.ts` — set → active → list round-trip, covering the structured-first path end-to-end
+- Mirrors the server's `set_engagement`/`list_engagements`; scopes findings + reports to `{output_dir}/engagements/{name}/`
+
+### Step 43 — Report formats + server identity (2026-06-22)
+- `generateReport(title?, format?)` forwards an optional `format` to the server; REPL `report [title=...] [format=...]` (markdown default; json|sarif|html). Title parse refactored to reuse `parseArgs`.
+- Cross-project: server `get_info()` now sets `server_info` (name `raven-nest`, version from `CARGO_PKG_VERSION`) instead of the rmcp SDK default; the handshake test asserts the product name + semver shape, decoupling it from rmcp version bumps.
+- Bumped client to **v0.3.0** (engagement command + report formats).
+
 ## Totals
 
-- **100 tests** (39 integration + 61 E2E), all passing
-- **13 new files**, **12 modified files**
-- Steps 1-40 complete
+- **104 tests** (43 integration + 61 E2E), all passing
+- **15 new files**, **12 modified files**
+- Steps 1-43 complete
 
 ## Key Learnings
 

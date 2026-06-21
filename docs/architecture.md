@@ -5,7 +5,7 @@
 ```
 +---------------------------------------------+
 |                  CLI / REPL                   |  index.ts
-|  parse args, dispatch commands, tab complete  |  src/commands/{scan,finding}.ts
+|  parse args, dispatch commands, tab complete  |  src/commands/{scan,finding,engagement}.ts
 +---------------------------------------------+
                       |
 +---------------------------------------------+
@@ -31,7 +31,7 @@
                 |                |
 +---------------------------------------------+
 |             raven-nest-mcp                    |  Rust binary
-|  34 tools, background scans, findings store,  |
+|  41 tools, background scans, findings store,  |
 |  progress notifications, context budget       |
 +---------------------------------------------+
 ```
@@ -126,6 +126,7 @@ Design choices:
 - **String literal unions** over TS enums: `"Critical" | "High" | "Medium" | "Low" | "Info"` maps directly to JSON without conversion
 - **`JsonRpcMessage` union** discriminated by presence of `id` field: notifications have no `id`, responses do
 - **Optional properties** (`evidence?: string`) map to Rust `Option<String>` and are omitted from JSON when undefined
+- **`structuredContent`** on `ToolCallResult` carries the server's machine-readable result fields (`finding_id`, `deleted`, `scan_id`, `active`); helpers read it first and fall back to parsing the human-readable text
 
 ## Transport reliability
 
@@ -140,17 +141,17 @@ Design choices:
 
 ## Test coverage
 
-**Integration tests** — 39 tests across 2 files (`src/`), against the real Rust server:
+**Integration tests** — 43 tests across 3 files (`src/`), against the real Rust server:
 - Handshake and protocol negotiation
 - Tool discovery and caching (cache hit, refresh, disconnect clears)
 - Tool invocation (ping, findings CRUD, scan lifecycle, report generation)
 - Error handling (nonexistent tool, missing params, invalid IDs)
-- Typed helper layer (RavenHelpers finding + scan methods)
+- Typed helper layer (RavenHelpers finding, scan + engagement methods)
 
 **E2E tests** — 61 tests across 6 files (`tests/e2e/`), against Docker targets:
 - Pure function tests: tokenize, coerceArgs, parseArgs edge cases
 - REPL code paths: call with coerceArgs, quoted multi-word values, NaN validation, error recovery
-- All 34 server tools exercised against Juice Shop (port 3000) and bWAPP (port 80)
+- 34 server tools exercised against Juice Shop (port 3000) and bWAPP (port 80)
 - Security tools: nmap, whatweb, nikto, nuclei, feroxbuster, ffuf, dalfox, sqlmap, wpscan, testssl, subfinder, dnsrecon, enum4linux_ng, masscan, hydra, john
 - Metasploit: msf_search, msf_module_info, msf_auxiliary, msf_sessions, msf_exploit, msf_post
 - Progress notification routing (stderr only) and timer reset verification

@@ -15,8 +15,10 @@ export class RavenHelpers {
     /** Save a vulnerability finding and return its server-assigned UUID. */
     async saveFinding(params: SaveFindingParams): Promise<string> {
         const result = await this.client.callTool("save_finding", { ...params });
-        const text   = this.unwrapText(result, "save_finding");
-        // Server responds with "Finding saved. ID: <uuid>" - strip the prefix
+        // Prefer the structured finding_id; fall back to parsing the text.
+        const id = this.structured<string>(result, "finding_id");
+        if (id) return id;
+        const text = this.unwrapText(result, "save_finding");
         return text.replace("Finding saved. ID: ", "");
     }
 
@@ -35,16 +37,20 @@ export class RavenHelpers {
     /** Delete a finding by ID. Returns true if the finding existed and was removed. */
     async deleteFinding(id: string): Promise<boolean> {
         const result = await this.client.callTool("delete_finding", { finding_id: id });
-        const text   = this.unwrapText(result, "delete_finding");
-        // Server says "deleted" in the response text when successful
+        // Prefer the structured `deleted` flag; fall back to text matching.
+        const deleted = this.structured<boolean>(result, "deleted");
+        if (deleted !== undefined) return deleted;
+        const text = this.unwrapText(result, "delete_finding");
         return text.includes("deleted");
     }
 
-    /** Generate a Markdown report of all saved findings.
-     *  Optionally pass a custom title for the report header. */
-    async generateReport(title?: string): Promise<string> {
+    /** Generate a report of all saved findings. Optionally pass a custom title
+     *  and a format (markdown default; json|sarif|html). The server validates
+     *  the format and owns the output path. */
+    async generateReport(title?: string, format?: string): Promise<string> {
         const args: Record<string, unknown> = {};
-        if (title) args.title = title;
+        if (title)  args.title  = title;
+        if (format) args.format = format;
         const result = await this.client.callTool("generate_report", args);
         return this.unwrapText(result, "generate_report");
     }
@@ -86,6 +92,26 @@ export class RavenHelpers {
         return this.unwrapText(result, "list_scans");
     }
 
+    /** Switch/create the active engagement. Returns the server's confirmation text.
+     *  Scopes subsequent findings + reports to that engagement's directory. */
+    async setEngagement(name: string): Promise<string> {
+        const result = await this.client.callTool("set_engagement", { name });
+        return this.unwrapText(result, "set_engagement");
+    }
+
+    /** List engagements (human-readable text). */
+    async listEngagements(): Promise<string> {
+        const result = await this.client.callTool("list_engagements");
+        return this.unwrapText(result, "list_engagements");
+    }
+
+    /** The active engagement name, read from list_engagements' structuredContent.
+     *  Returns undefined when none is active. Used to render the REPL prompt. */
+    async activeEngagement(): Promise<string | undefined> {
+        const result = await this.client.callTool("list_engagements");
+        return this.structured<string | null>(result, "active") ?? undefined;
+    }
+
     /** Extract the first text content block from a tool result, or throw if
      *  the server flagged the result as an error. Centralises the isError
      *  check so individual methods can't accidentally ignore failures. */
@@ -94,5 +120,12 @@ export class RavenHelpers {
             throw new Error(result.content[0]?.text ?? `${context} failed`);
         }
         return result.content[0]?.text ?? "";
+    }
+
+    /** Read a single field from the result's structuredContent, if the server
+     *  provided one. Returns undefined when absent so callers can fall back to
+     *  parsing the human-readable text. */
+    private structured<T>(result: ToolCallResult, key: string): T | undefined {
+        return result.structuredContent?.[key] as T | undefined;
     }
 }

@@ -72,6 +72,10 @@ export interface ToolCallResult {
     content: TextContent[];
     /** True if the tool execution encountered an error */
     isError?: boolean;
+    /** Optional machine-readable result (MCP structuredContent). The raven-nest
+     *  server attaches this on finding/scan tools so clients can read fields
+     *  (e.g. finding_id, deleted, scan_id) instead of parsing the human text. */
+    structuredContent?: Record<string, unknown>;
 }
 
 /** Log levels for server notifications - matches the MCP spec severity ordering.

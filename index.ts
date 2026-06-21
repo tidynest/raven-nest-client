@@ -9,6 +9,7 @@ import { McpClient } from "./src/client";
 import { RavenHelpers } from "./src/client/helpers";
 import { handleScanCommand } from "./src/commands/scan";
 import { handleFindingCommand, parseArgs } from "./src/commands/finding";
+import { handleEngagementCommand } from "./src/commands/engagement";
 import type { ToolDefinition } from "./src/types";
 import { SERVER_BIN } from "./src/config";
 import pkg from "./package.json";
@@ -249,7 +250,9 @@ async function repl() {
 
         // Fetch tools early so tab completion has tool names available
         const { tools } = await client.listTools();
-        const commands = ["list", "call", "describe", "scan", "scans", "finding", "findings", "report", "help", "quit"];
+        // Seed the active engagement so the prompt can show it (best-effort).
+        let active = await helpers.activeEngagement().catch(() => undefined);
+        const commands = ["list", "call", "describe", "scan", "scans", "finding", "findings", "engagement", "engagements", "report", "help", "quit"];
 
         // Set up readline with tab completion and persistent history
         rl = createInterface({
@@ -282,7 +285,7 @@ async function repl() {
 
         // Main REPL loop - reads a line, dispatches, repeats
         while (true) {
-            const line = await ask(rl, `${c.prompt}raven>${c.reset} `);
+            const line = await ask(rl, `${c.prompt}raven${active ? ` (${active})` : ""}>${c.reset} `);
             if (line === "quit") break;
             if (!line.trim()) continue;
 
@@ -350,10 +353,19 @@ async function repl() {
                         console.log(await helpers.listFindings());
                         break;
 
-                    // Report generation - optional title via title=... argument
+                    // Engagement management shortcuts - track active for the prompt
+                    case "engagement":
+                        active = (await handleEngagementCommand(helpers, parts, c)) ?? active;
+                        break;
+
+                    case "engagements":
+                        active = (await handleEngagementCommand(helpers, ["engagement", "list"], c)) ?? active;
+                        break;
+
+                    // Report generation - optional title=... and format=... args
                     case "report": {
-                        const title = parts.slice(1).find(s => s.startsWith("title="))?.split("=").slice(1).join("=");
-                        console.log(await helpers.generateReport(title));
+                        const a = parseArgs(parts.slice(1));
+                        console.log(await helpers.generateReport(a.title, a.format));
                         break;
                     }
 
@@ -373,7 +385,10 @@ async function repl() {
                         console.log(`  finding get <id>                 Retrieve a finding`);
                         console.log(`  finding delete <id>              Delete a finding`);
                         console.log(`  findings                         List all findings`);
-                        console.log(`  report [title=...]               Generate a report\n`);
+                        console.log(`  report [title=...] [format=...]  Generate a report (md|json|sarif|html)\n`);
+                        console.log(`${c.label}Engagement${c.reset}`);
+                        console.log(`  engagement set <name>            Switch/create the active engagement`);
+                        console.log(`  engagements                      List engagements (active marked)\n`);
                         console.log(`${c.label}Session${c.reset}`);
                         console.log(`  help                             Show this help`);
                         console.log(`  quit                             Exit the REPL\n`);

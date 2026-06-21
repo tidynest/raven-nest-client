@@ -9,29 +9,29 @@ Ordered by impact within each section. Unchecked = not started.
 
 ### High Priority
 
-- [ ] **Auto-finding extraction from scan output**
+- [x] **Auto-finding extraction from scan output**
   The parsers already understand tool output structure (nuclei severity tags, nikto warnings, nmap service banners). Extend them to optionally emit structured findings alongside text output. Needs a confidence threshold or review step to avoid noise flooding the report.
   *Affected crates:* `raven-core` (parsers), `raven-report` (finding store)
 
-- [ ] **Target scope management**
+- [x] **Target scope management**
   A `[scope]` config section with allowed CIDRs, domains, and URLs. `validate_target()` already exists — gate it against the scope allowlist before every tool invocation. Critical for professional engagements where out-of-scope scanning has legal consequences.
   *Affected crates:* `raven-core` (config, validation)
 
-- [ ] **Scan-to-finding linking**
+- [x] **Scan-to-finding linking**
   Add optional `scan_id: Option<Uuid>` to `SaveFindingRequest`. Link findings to the scan that produced them. Enables "show all findings from scan X" and better report traceability.
   *Affected crates:* `raven-report` (finding model, store)
 
-- [ ] **Engagement / project management**
+- [x] **Engagement / project management**
   Named engagements with scope, timeline, client info, and notes. Each engagement gets its own output directory, findings store, and report context. Enables `create_engagement`, `switch_engagement`, `list_engagements`. Findings and scans belong to the active engagement.
   *Affected crates:* `raven-core` (new engagement manager), `raven-report` (scoped store)
 
 ### Medium Priority
 
-- [ ] **Additional report formats (SARIF, JSON, HTML)**
+- [x] **Additional report formats (SARIF, JSON, HTML)**
   SARIF for GitHub Security / Defect Dojo / CI pipelines. JSON for programmatic consumption. HTML for standalone shareable reports. The finding data model is already structured enough — mostly serialisation work.
   *Affected crates:* `raven-report`
 
-- [ ] **Finding deduplication**
+- [x] **Finding deduplication**
   Detect when a finding with the same title + target + tool already exists. Warn or merge instead of creating duplicates. Keeps reports clean during iterative scanning.
   *Affected crates:* `raven-report` (store)
 
@@ -143,8 +143,8 @@ Ordered by impact within each section. Unchecked = not started.
 
 ## Cross-Project
 
-- [ ] **Engagement sync between client and server**
-  Client creates/switches engagements, server scopes its findings store accordingly. Requires protocol additions (new MCP methods).
+- [x] **Engagement sync between client and server**
+  Client creates/switches engagements (`engagement set`/`engagements`), server scopes its findings store accordingly. Shipped via `set_engagement`/`list_engagements`.
 
 - [ ] **Structured scan results**
   Server returns parsed results as JSON (not just text) alongside the human-readable output. Client can then filter, sort, and correlate without re-parsing text. Major protocol change.
