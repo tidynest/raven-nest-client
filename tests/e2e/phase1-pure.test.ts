@@ -4,6 +4,7 @@
 
 import { describe, test, expect } from "bun:test";
 import { parseArgs } from "../../src/commands/finding";
+import { parseOpenPorts, selectWebPorts } from "../../src/commands/recon";
 
 // -- Inlined from index.ts:34-59 (can't import without triggering main()) --
 
@@ -156,5 +157,40 @@ describe("Phase 1c: parseArgs()", () => {
 
     test("empty array returns empty object", () => {
         expect(parseArgs([])).toEqual({});
+    });
+});
+
+// -- Test 1d: recon parseOpenPorts() + selectWebPorts() --
+
+describe("Phase 1d: recon parsing", () => {
+    const NMAP = [
+        "PORT       STATE    SERVICE    VERSION",
+        "22/tcp     open     ssh        OpenSSH 8.9",
+        "80/tcp     open     http       nginx 1.18",
+        "443/tcp    open     https",
+        "3306/tcp   closed   mysql",
+        "8080/tcp   open     http-proxy",
+    ].join("\n");
+
+    test("parseOpenPorts extracts open ports + services, skips closed/headers", () => {
+        expect(parseOpenPorts(NMAP)).toEqual([
+            { port: 22,   service: "ssh" },
+            { port: 80,   service: "http" },
+            { port: 443,  service: "https" },
+            { port: 8080, service: "http-proxy" },
+        ]);
+    });
+
+    test("parseOpenPorts returns [] for empty / no-open output", () => {
+        expect(parseOpenPorts("")).toEqual([]);
+        expect(parseOpenPorts("Nmap done. 0 hosts up.")).toEqual([]);
+    });
+
+    test("selectWebPorts keeps http services + common web ports, drops ssh", () => {
+        const web = selectWebPorts(parseOpenPorts(NMAP)).map(p => p.port);
+        expect(web).toContain(80);
+        expect(web).toContain(443);
+        expect(web).toContain(8080);
+        expect(web).not.toContain(22);
     });
 });

@@ -81,6 +81,7 @@ raven (acme)> report format=html               # write the report (see path belo
 | | `report [title=...] [format=...]` | Generate a report (md/json/sarif/html) |
 | **Engagement** | `engagement set <name>` | Switch/create the active engagement |
 | | `engagements` | List engagements (active marked) |
+| **Workflows** | `recon <target>` | nmap discovery → whatweb on the web ports found |
 | **Session** | `help` | Show available commands |
 | | `quit` | Exit the REPL |
 
@@ -136,7 +137,7 @@ bun test tests/e2e/phase4-progress.test.ts            # progress/stderr separati
 docker stop juice-shop infallible_satoshi
 ```
 
-64 E2E tests covering 36 of the server tools against Juice Shop (port 3000) and bWAPP (port 80), plus local filesystem fixtures for the secret scanners (gitleaks, trufflehog).
+67 E2E tests covering 36 of the server tools against Juice Shop (port 3000) and bWAPP (port 80), plus local filesystem fixtures for the secret scanners (gitleaks, trufflehog) and pure-function tests for the recon parser.
 Metasploit tests require `msfrpcd` running on port 55553.
 
 ## Project structure
@@ -151,6 +152,7 @@ Metasploit tests require `msfrpcd` running on port 55553.
 | `src/commands/scan.ts` | REPL scan subcommand dispatcher |
 | `src/commands/finding.ts` | REPL finding subcommand dispatcher |
 | `src/commands/engagement.ts` | REPL engagement subcommand dispatcher |
+| `src/commands/recon.ts` | Recon workflow — nmap discovery → whatweb on web ports (deterministic pipeline) |
 | `src/types/jsonrpc.ts` | JSON-RPC 2.0 types + notification type |
 | `src/types/mcp.ts` | MCP protocol types + logging notification params |
 | `src/types/finding.ts` | Finding and severity types |
@@ -158,7 +160,7 @@ Metasploit tests require `msfrpcd` running on port 55553.
 | `src/client/mcp-client.test.ts` | Integration tests — handshake, tools, findings, scans, caching, errors |
 | `src/client/helpers.test.ts` | Helper layer tests — typed finding/scan wrappers |
 | `src/commands/engagement.test.ts` | Engagement command tests — set → active → list round-trip |
-| `tests/e2e/` | E2E tests — 36 tools against Docker targets + filesystem fixtures (6 files, 64 tests) |
+| `tests/e2e/` | E2E tests — 36 tools against Docker targets + filesystem fixtures (6 files, 67 tests) |
 
 See [docs/architecture.md](docs/architecture.md) for the layered architecture and data flow.
 

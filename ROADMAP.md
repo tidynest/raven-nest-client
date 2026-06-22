@@ -83,9 +83,9 @@ Ordered by impact within each section. Unchecked = not started.
 
 ### High Priority
 
-- [ ] **Scan orchestration / recon workflows**
+- [~] **Scan orchestration / recon workflows**
   A `recon <target>` command that chains: nmap (discover ports) -> whatweb (identify tech on HTTP ports) -> nikto (scan web servers) -> nuclei (check known CVEs). Intelligent filtering between stages (only scan what the previous step discovered). Teaches state machines, dependency graphs, and async orchestration.
-  *New files:* `src/workflows/`, `src/commands/recon.ts`
+  *Shipped (v1, Step 47):* `src/commands/recon.ts` — nmap `service` scan -> `parseOpenPorts` -> tunable `selectWebPorts` filter -> whatweb per web port. *Still open:* extend the chain to nikto/nuclei, and feed results into auto-findings.
 
 - [ ] **Web dashboard with Bun.serve()**
   Real-time browser dashboard using Bun's built-in HTTP server + WebSocket. Shows: running scans with live progress, findings summary (severity breakdown chart), scan history timeline, target map. Uses HTML imports (no vite/webpack). Teaches frontend dev, WebSocket, reactive UI.

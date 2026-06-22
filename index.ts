@@ -10,6 +10,7 @@ import { RavenHelpers } from "./src/client/helpers";
 import { handleScanCommand } from "./src/commands/scan";
 import { handleFindingCommand, parseArgs } from "./src/commands/finding";
 import { handleEngagementCommand } from "./src/commands/engagement";
+import { handleReconCommand } from "./src/commands/recon";
 import type { ToolDefinition } from "./src/types";
 import { SERVER_BIN } from "./src/config";
 import pkg from "./package.json";
@@ -252,7 +253,7 @@ async function repl() {
         const { tools } = await client.listTools();
         // Seed the active engagement so the prompt can show it (best-effort).
         let active = await helpers.activeEngagement().catch(() => undefined);
-        const commands = ["list", "call", "describe", "scan", "scans", "finding", "findings", "engagement", "engagements", "report", "help", "quit"];
+        const commands = ["list", "call", "describe", "scan", "scans", "finding", "findings", "engagement", "engagements", "report", "recon", "help", "quit"];
 
         // Set up readline with tab completion and persistent history
         rl = createInterface({
@@ -362,6 +363,11 @@ async function repl() {
                         active = (await handleEngagementCommand(helpers, ["engagement", "list"], c)) ?? active;
                         break;
 
+                    // Recon workflow - nmap discovery then whatweb on web ports
+                    case "recon":
+                        await handleReconCommand(helpers, parts, c);
+                        break;
+
                     // Report generation - optional title=... and format=... args
                     case "report": {
                         const a = parseArgs(parts.slice(1));
@@ -389,6 +395,8 @@ async function repl() {
                         console.log(`${c.label}Engagement${c.reset}`);
                         console.log(`  engagement set <name>            Switch/create the active engagement`);
                         console.log(`  engagements                      List engagements (active marked)\n`);
+                        console.log(`${c.label}Workflows${c.reset}`);
+                        console.log(`  recon <target>                   nmap discovery -> whatweb on web ports\n`);
                         console.log(`${c.label}Session${c.reset}`);
                         console.log(`  help                             Show this help`);
                         console.log(`  quit                             Exit the REPL\n`);

@@ -112,6 +112,15 @@ export class RavenHelpers {
         return this.structured<string | null>(result, "active") ?? undefined;
     }
 
+    /** Invoke any server tool by name and return its first text block. Generic
+     *  escape hatch for callers that drive tools without a dedicated typed
+     *  wrapper (e.g. the recon workflow chaining nmap -> whatweb). Throws on
+     *  isError, like the typed methods. */
+    async callText(tool: string, args: Record<string, unknown> = {}): Promise<string> {
+        const result = await this.client.callTool(tool, args);
+        return this.unwrapText(result, tool);
+    }
+
     /** Extract the first text content block from a tool result, or throw if
      *  the server flagged the result as an error. Centralises the isError
      *  check so individual methods can't accidentally ignore failures. */

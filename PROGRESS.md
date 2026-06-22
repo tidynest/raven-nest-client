@@ -242,11 +242,18 @@ A TypeScript + Bun MCP client for [raven-nest-mcp](https://github.com/tidynest/r
 - Fixture plants synthetic, non-allowlisted fake secrets under the server's `output_dir`; both tools detect them and the server maps gitleaks' exit 1 (secrets found) to success — asserted via `isError === false`. Secret values are never echoed (`show_secrets`/`verify` left off). Fixture removed in `afterAll`.
 - E2E now **64 tests / 6 files**, covering **36 of 43** server tools. `bunx tsc --noEmit` clean.
 
+### Step 47 — Recon workflow (2026-06-23)
+- Added `src/commands/recon.ts` — `recon <target>` runs a deterministic two-stage pipeline (NOT an agentic loop): nmap `scan_type=service` → parse open ports → run whatweb against the HTTP(S) ports. One tool failing doesn't abort the sweep; the server stays the source of truth per tool.
+- `parseOpenPorts()` reads the server's nmap text rows; `selectWebPorts()` is the deliberately-isolated, user-tunable filter (http service name OR common web port) — the one decision with several valid strategies, documented with a TODO and trade-offs.
+- Added `RavenHelpers.callText(tool, args)` — generic text-returning escape hatch for tools without a typed wrapper.
+- Wired into the REPL: dispatch, tab completion, and a new **Workflows** help section. 3 pure tests in `phase1-pure` (parser + filter). Live smoke vs localhost: nmap found 4 ports, the filter picked `:8080` (correctly skipping ipp/postgresql and a mislabeled `:8081`), whatweb fingerprinted it.
+- E2E 64→67; `bunx tsc --noEmit` clean.
+
 ## Totals
 
-- **107 tests** (43 integration + 64 E2E), all passing
-- **15 new files**, **12 modified files**
-- Steps 1-46 complete
+- **110 tests** (43 integration + 67 E2E), all passing
+- **16 new files**, **12 modified files**
+- Steps 1-47 complete
 
 ## Key Learnings
 
