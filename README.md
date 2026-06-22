@@ -49,6 +49,18 @@ bun run index.ts --help       # print usage
 bun run index.ts --no-color   # disable ANSI colours
 ```
 
+### Quick start
+
+A typical REPL session — connect, scope to an engagement, record a finding, export:
+
+```text
+$ bun run index.ts
+raven> call ping_target target=127.0.0.1      # invoke any server tool
+raven> engagement set acme                     # scope findings + reports to "acme"
+raven (acme)> finding save title="XSS in login" severity=high target=127.0.0.1 tool=manual
+raven (acme)> report format=html               # write the report (see path below)
+```
+
 ### REPL commands
 
 | Category | Command | Description |
@@ -73,6 +85,8 @@ bun run index.ts --no-color   # disable ANSI colours
 
 Tab completion is available for tool names (after `call` or `describe`) and command names.
 
+**Engagements** scope findings and reports to a named client or target: `engagement set <name>` switches context, and everything saved afterwards belongs to that engagement (the prompt shows it, e.g. `raven (acme)>`). The active engagement lives in server memory — it resets when the server restarts, and the prompt drops the `(name)` suffix.
+
 ### Server tools (41)
 
 **Recon:** ping_target, run_nmap, run_whatweb, run_nuclei, run_nikto, run_subfinder, run_dnsrecon, run_wpscan, run_masscan, run_httpx, run_dnsx, run_katana
@@ -90,6 +104,7 @@ Tab completion is available for tool names (after `call` or `describe`) and comm
 **Engagement (2):** set_engagement, list_engagements
 
 Reports are multi-format: `generate_report` defaults to Markdown; pass `format=json|sarif|html` (e.g. `report format=sarif`) for the other formats.
+Files are written under the server's `output_dir` (default `/tmp/raven-nest`), or `{output_dir}/engagements/{name}/` when an engagement is active. The server prints the saved path in its response.
 
 ## Tests
 
@@ -137,6 +152,7 @@ Metasploit tests require `msfrpcd` running on port 55553.
 | `src/types/scan.ts` | Scan status and parameter types |
 | `src/client/mcp-client.test.ts` | Integration tests — handshake, tools, findings, scans, caching, errors |
 | `src/client/helpers.test.ts` | Helper layer tests — typed finding/scan wrappers |
+| `src/commands/engagement.test.ts` | Engagement command tests — set → active → list round-trip |
 | `tests/e2e/` | E2E tests — 34 tools against Docker targets (6 files, 61 tests) |
 
 See [docs/architecture.md](docs/architecture.md) for the layered architecture and data flow.

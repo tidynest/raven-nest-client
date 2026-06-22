@@ -192,7 +192,7 @@ A TypeScript + Bun MCP client for [raven-nest-mcp](https://github.com/tidynest/r
 - Created `docs/architecture.md` with layered architecture, data flow, protocol details
 
 ### Step 39 — E2E test suite (2026-03-31 / 2026-04-01)
-- Created 8 test files in `tests/e2e/` covering all 34 server tools
+- Created 6 test files in `tests/e2e/` covering all 34 server tools
 - Phase 1: Pure function tests — tokenize (quote-aware splitting), coerceArgs (type coercion + NaN fallback), parseArgs (key=value edge cases). 18 tests.
 - Phase 2: REPL code paths via direct import — call with coerceArgs, finding save with quoted multi-word values, scan results with offset/limit, report with title, error recovery, NaN cvss/timeout validation. 8 tests.
 - Phase 3: Real security tool execution against Docker targets (Juice Shop :3000, bWAPP :80) — nmap, whatweb, nikto, nuclei, http_request, background scan lifecycle, feroxbuster, ffuf, dalfox, sqlmap, wpscan, testssl, subfinder, dnsrecon, enum4linux_ng, masscan, hydra, john. 30 tests.
@@ -212,7 +212,7 @@ A TypeScript + Bun MCP client for [raven-nest-mcp](https://github.com/tidynest/r
 - `ToolCallResult` gained `structuredContent?: Record<string, unknown>` (`src/types/mcp.ts`) — the MCP machine-readable result channel the server now attaches to finding/scan/engagement tools
 - Added private `structured<T>(result, key)` to `RavenHelpers`; `saveFinding` prefers the structured `finding_id`, `deleteFinding` prefers the `deleted` flag, each falling back to text parsing
 - Stops relying on fragile string parsing where the server exposes structured fields
-- Bumped the handshake assertion `1.1.0` → `1.7.0` (rmcp 1.7 SDK; note: this tracks the rmcp crate version, not raven-server)
+- Bumped the handshake assertion `1.1.0` → `1.7.0` (rmcp 1.7 SDK) — **superseded by Step 43**, which drops the rmcp version and asserts the product name (`raven-nest`) + semver shape instead
 
 ### Step 42 — Engagement command (2026-06-22)
 - Added `setEngagement`, `listEngagements`, `activeEngagement` to `RavenHelpers` (`activeEngagement` reads `structuredContent.active`)
