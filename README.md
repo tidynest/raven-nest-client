@@ -1,12 +1,12 @@
 # raven-nest-client
 
 TypeScript MCP client for [raven-nest-mcp](https://github.com/tidynest/raven-nest-mcp).
-Speaks JSON-RPC 2.0 over stdio to the Rust MCP server (v0.3, 41 tools).
+Speaks JSON-RPC 2.0 over stdio to the Rust MCP server (v0.2.0, 43 tools).
 
 ## Requirements
 
 - [Bun](https://bun.sh) v1.3+
-- The compiled `raven-server` binary from raven-nest-mcp
+- The compiled `raven-server` binary from raven-nest-mcp (tested against **v0.2.0**)
 
 ## Setup
 
@@ -87,11 +87,13 @@ Tab completion is available for tool names (after `call` or `describe`) and comm
 
 **Engagements** scope findings and reports to a named client or target: `engagement set <name>` switches context, and everything saved afterwards belongs to that engagement (the prompt shows it, e.g. `raven (acme)>`). The active engagement lives in server memory — it resets when the server restarts, and the prompt drops the `(name)` suffix.
 
-### Server tools (41)
+### Server tools (43)
 
 **Recon:** ping_target, run_nmap, run_whatweb, run_nuclei, run_nikto, run_subfinder, run_dnsrecon, run_wpscan, run_masscan, run_httpx, run_dnsx, run_katana
 
 **Exploitation:** run_sqlmap, run_hydra, run_feroxbuster, run_ffuf, run_testssl, run_enum4linux_ng, run_john, run_dalfox, run_netexec
+
+**Secrets (2):** run_gitleaks, run_trufflehog — scan a filesystem path (confined to the server's `output_dir`, `/usr/share`, `/usr/lib`); report location + rule id only, never the secret value
 
 **Metasploit (6):** msf_search, msf_module_info, msf_exploit, msf_auxiliary, msf_sessions, msf_post
 
@@ -105,6 +107,8 @@ Tab completion is available for tool names (after `call` or `describe`) and comm
 
 Reports are multi-format: `generate_report` defaults to Markdown; pass `format=json|sarif|html` (e.g. `report format=sarif`) for the other formats.
 Files are written under the server's `output_dir` (default `/tmp/raven-nest`), or `{output_dir}/engagements/{name}/` when an engagement is active. The server prints the saved path in its response.
+
+**Scope enforcement:** when the server has an engagement `[scope]` allowlist enabled, every tool — including `http_request` — rejects out-of-scope hosts with an authorization error (MCP `-32600`). The client surfaces the message verbatim and does not retry; treat it as a hard boundary.
 
 ## Tests
 

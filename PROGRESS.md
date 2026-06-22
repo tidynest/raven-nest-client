@@ -226,11 +226,17 @@ A TypeScript + Bun MCP client for [raven-nest-mcp](https://github.com/tidynest/r
 - Cross-project: server `get_info()` now sets `server_info` (name `raven-nest`, version from `CARGO_PKG_VERSION`) instead of the rmcp SDK default; the handshake test asserts the product name + semver shape, decoupling it from rmcp version bumps.
 - Bumped client to **v0.3.0** (engagement command + report formats).
 
+### Step 44 — Server v0.2.0 sync (2026-06-23)
+- Server tagged **v0.2.0**: now 43 tools — added `run_gitleaks` and `run_trufflehog` (secret scanners over a filesystem path confined to `output_dir`/`/usr/share`/`/usr/lib`; report location + rule id only, never the secret value). Also: `http_request` now scope-enforced (out-of-scope host → MCP `-32600`), ffuf `match_codes` default widened + accepts `"all"`, auto-finding extraction extended to 8 scanners (sqlmap/testssl/gitleaks/trufflehog added), optional `[execution] min_exec_gap_ms` launch cooldown.
+- **Zero client code changes.** The manual-REPL generic design absorbs every item: no hardcoded tool count (loose `>21` assertion + dynamic `tools.length`), generic `call` arg passthrough (no `match_codes`/path validation to update), no auto-retry loop to special-case the scope error, 120s timeout tolerates the cooldown, and the handshake test already asserts product name + loose semver (Step 43) so `0.2.0` passes unchanged.
+- Docs synced: README tool count 41→43 + new **Secrets** category + scope-enforcement note + "tested against v0.2.0" compat line + quick-start; `docs/architecture.md` 41→43. Verified live against the v0.2.0 binary: 43 tools, both new tools listed, `bun test src/` = 43 pass.
+- Coverage note: `run_gitleaks`/`run_trufflehog` have no E2E yet — E2E still exercises 34 tools (now 34 of 43).
+
 ## Totals
 
 - **104 tests** (43 integration + 61 E2E), all passing
 - **15 new files**, **12 modified files**
-- Steps 1-43 complete
+- Steps 1-44 complete
 
 ## Key Learnings
 

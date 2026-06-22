@@ -31,7 +31,7 @@
                 |                |
 +---------------------------------------------+
 |             raven-nest-mcp                    |  Rust binary
-|  41 tools, background scans, findings store,  |
+|  43 tools, background scans, findings store,  |
 |  progress notifications, context budget       |
 +---------------------------------------------+
 ```
