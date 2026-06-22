@@ -1,0 +1,15 @@
+# gitleaks config — extends the default ruleset.
+#
+# This is a security-tooling repo: its E2E suite drives the server's own
+# gitleaks/trufflehog tools, so test fixtures deliberately contain SYNTHETIC,
+# never-valid secrets. They are assembled from fragments at runtime (no literal
+# in source), but allowlist the E2E test path as belt-and-suspenders so a future
+# inline fixture can't trip gitleaks or CI secret scanning.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "E2E secret-scanner test fixtures (synthetic, non-real credentials)"
+paths = [
+  '''tests/e2e/.*\.test\.ts''',
+]
