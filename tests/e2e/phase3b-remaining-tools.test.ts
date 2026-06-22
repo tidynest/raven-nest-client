@@ -196,6 +196,54 @@ describe("Credential tools", () => {
     });
 });
 
+// ── Secret scanners (take a filesystem path, not a host) ────────────
+
+describe("Secret scanners", () => {
+    const client = new McpClient(SERVER_BIN, (msg) => {
+        process.stderr.write(`[progress] ${msg}\n`);
+    });
+
+    // Server confines scan paths to its output_dir. Plant a fixture with
+    // synthetic, randomly-typed secrets (NOT real credentials, never committed,
+    // removed in afterAll) so the scanners have something to flag. Avoids the
+    // vendors' example-key allowlists, which silently suppress detections.
+    const SECRETS_DIR = join(SERVER_OUTPUT_DIR, "e2e-secrets");
+
+    beforeAll(() => {
+        mkdirSync(SECRETS_DIR, { recursive: true });
+        writeFileSync(
+            join(SECRETS_DIR, "leak.env"),
+            "github_pat = ghp_A8kZq2Rm7Xv1Lp9Nd4Tf6Wb3Yc0Hs5Ej8Ku\n" +
+            "aws_access_key_id = AKIAZ3XK7PQR2WTJ9LMN\n" +
+            "aws_secret_access_key = aJ8x/K2lP9mQ4nR7sT1uV6wY0zB3cD5eF8gH1iJ2\n",
+        );
+    });
+
+    test("connects", async () => { await client.connect(); });
+
+    test("run_gitleaks - secret detection on a filesystem path", async () => {
+        const r = await tryTool(client, "run_gitleaks", { path: SECRETS_DIR });
+        console.log(`[gitleaks] isError=${r.isError}, output: ${r.text.slice(0, 300)}`);
+        // A detected secret makes gitleaks exit 1; the server maps that to
+        // success, so neither a hit nor a clean scan surfaces as an error.
+        expect(r.isError).toBe(false);
+        expect(r.text.length).toBeGreaterThan(0);
+    }, 60_000);
+
+    test("run_trufflehog - secret detection on a filesystem path", async () => {
+        // verify=false: no outbound credential-verification calls
+        const r = await tryTool(client, "run_trufflehog", { path: SECRETS_DIR });
+        console.log(`[trufflehog] isError=${r.isError}, output: ${r.text.slice(0, 300)}`);
+        expect(r.isError).toBe(false);
+        expect(r.text.length).toBeGreaterThan(0);
+    }, 120_000);
+
+    afterAll(async () => {
+        await client.disconnect();
+        rmSync(SECRETS_DIR, { recursive: true, force: true });
+    });
+});
+
 // ── Metasploit tools ────────────────────────────────────────────────
 
 describe("Metasploit tools", () => {

@@ -148,11 +148,12 @@ Design choices:
 - Error handling (nonexistent tool, missing params, invalid IDs)
 - Typed helper layer (RavenHelpers finding, scan + engagement methods)
 
-**E2E tests** — 61 tests across 6 files (`tests/e2e/`), against Docker targets:
+**E2E tests** — 64 tests across 6 files (`tests/e2e/`), against Docker targets:
 - Pure function tests: tokenize, coerceArgs, parseArgs edge cases
 - REPL code paths: call with coerceArgs, quoted multi-word values, NaN validation, error recovery
-- 34 server tools exercised against Juice Shop (port 3000) and bWAPP (port 80)
+- 36 server tools exercised against Juice Shop (port 3000), bWAPP (port 80), and local filesystem fixtures
 - Security tools: nmap, whatweb, nikto, nuclei, feroxbuster, ffuf, dalfox, sqlmap, wpscan, testssl, subfinder, dnsrecon, enum4linux_ng, masscan, hydra, john
+- Secret scanners: gitleaks, trufflehog (filesystem path, synthetic fixture; exit-1-on-hit mapped to success)
 - Metasploit: msf_search, msf_module_info, msf_auxiliary, msf_sessions, msf_exploit, msf_post
 - Progress notification routing (stderr only) and timer reset verification
 - Edge cases: invalid UUID behavior, CLI stdout/stderr separation

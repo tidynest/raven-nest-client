@@ -2,6 +2,7 @@
 
 TypeScript MCP client for [raven-nest-mcp](https://github.com/tidynest/raven-nest-mcp).
 Speaks JSON-RPC 2.0 over stdio to the Rust MCP server (v0.2.0, 43 tools).
+Versioned in lockstep with the server: client `v0.2.0` targets server `v0.2.0`.
 
 ## Requirements
 
@@ -128,14 +129,14 @@ bun test tests/e2e/phase1-pure.test.ts                # pure functions, no serve
 bun test tests/e2e/phase2-repl.test.ts                # REPL code paths
 bun test tests/e2e/phase5-edge.test.ts                # edge cases
 bun test tests/e2e/phase3-security.test.ts            # nmap, whatweb, nikto, nuclei
-bun test tests/e2e/phase3b-remaining-tools.test.ts    # all other tools + Metasploit
+bun test tests/e2e/phase3b-remaining-tools.test.ts    # all other tools + secret scanners + Metasploit
 bun test tests/e2e/phase4-progress.test.ts            # progress/stderr separation
 
 # Stop targets
 docker stop juice-shop infallible_satoshi
 ```
 
-61 E2E tests covering 34 of the server tools against Juice Shop (port 3000) and bWAPP (port 80).
+64 E2E tests covering 36 of the server tools against Juice Shop (port 3000) and bWAPP (port 80), plus local filesystem fixtures for the secret scanners (gitleaks, trufflehog).
 Metasploit tests require `msfrpcd` running on port 55553.
 
 ## Project structure
@@ -157,7 +158,7 @@ Metasploit tests require `msfrpcd` running on port 55553.
 | `src/client/mcp-client.test.ts` | Integration tests — handshake, tools, findings, scans, caching, errors |
 | `src/client/helpers.test.ts` | Helper layer tests — typed finding/scan wrappers |
 | `src/commands/engagement.test.ts` | Engagement command tests — set → active → list round-trip |
-| `tests/e2e/` | E2E tests — 34 tools against Docker targets (6 files, 61 tests) |
+| `tests/e2e/` | E2E tests — 36 tools against Docker targets + filesystem fixtures (6 files, 64 tests) |
 
 See [docs/architecture.md](docs/architecture.md) for the layered architecture and data flow.
 

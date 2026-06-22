@@ -232,11 +232,21 @@ A TypeScript + Bun MCP client for [raven-nest-mcp](https://github.com/tidynest/r
 - Docs synced: README tool count 41→43 + new **Secrets** category + scope-enforcement note + "tested against v0.2.0" compat line + quick-start; `docs/architecture.md` 41→43. Verified live against the v0.2.0 binary: 43 tools, both new tools listed, `bun test src/` = 43 pass.
 - Coverage note: `run_gitleaks`/`run_trufflehog` have no E2E yet — E2E still exercises 34 tools (now 34 of 43).
 
+### Step 45 — Version alignment with server (2026-06-23)
+- Adopted **lockstep versioning** with raven-nest-mcp: the client version tracks the server's released line. Bumped `package.json` 0.3.0 → **0.2.0** to match server v0.2.0. (The Step 43 0.3.0 bump was internal-only — never git-tagged or published, `private: true` — so realigning is clean.)
+- Rationale: the client is a thin generic front-end to the server, so a shared number makes "client vX targets server vX" unambiguous. Both move together on future releases.
+- Docs: README states the lockstep policy; `--version` (reads package.json) now prints 0.2.0. No code change beyond the version string.
+
+### Step 46 — E2E coverage for the secret scanners (2026-06-23)
+- Added a **Secret scanners** block to `tests/e2e/phase3b-remaining-tools.test.ts` exercising `run_gitleaks` + `run_trufflehog` end-to-end through the client (closes the coverage gap noted in Step 44).
+- Fixture plants synthetic, non-allowlisted fake secrets under the server's `output_dir`; both tools detect them and the server maps gitleaks' exit 1 (secrets found) to success — asserted via `isError === false`. Secret values are never echoed (`show_secrets`/`verify` left off). Fixture removed in `afterAll`.
+- E2E now **64 tests / 6 files**, covering **36 of 43** server tools. `bunx tsc --noEmit` clean.
+
 ## Totals
 
-- **104 tests** (43 integration + 61 E2E), all passing
+- **107 tests** (43 integration + 64 E2E), all passing
 - **15 new files**, **12 modified files**
-- Steps 1-44 complete
+- Steps 1-46 complete
 
 ## Key Learnings
 
