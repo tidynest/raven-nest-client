@@ -211,11 +211,18 @@ describe("Secret scanners", () => {
 
     beforeAll(() => {
         mkdirSync(SECRETS_DIR, { recursive: true });
+        // Fakes assembled from fragments so no scanner-matchable literal sits in
+        // committed source (keeps the repo from self-tripping gitleaks / remote
+        // secret scanning). The written file lands under output_dir, is untracked,
+        // and is removed in afterAll. These are NOT real credentials.
+        const pat    = "ghp" + "_" + "A8kZq2Rm7Xv1Lp9Nd4Tf6Wb3Yc0Hs5Ej8Ku";
+        const awsId  = "AKIA" + "Z3XK7PQR2WTJ9LMN";
+        const awsKey = "aJ8x/K2lP9mQ4n" + "R7sT1uV6wY0zB3cD5eF8gH1iJ2";
         writeFileSync(
             join(SECRETS_DIR, "leak.env"),
-            "github_pat = ghp_A8kZq2Rm7Xv1Lp9Nd4Tf6Wb3Yc0Hs5Ej8Ku\n" +
-            "aws_access_key_id = AKIAZ3XK7PQR2WTJ9LMN\n" +
-            "aws_secret_access_key = aJ8x/K2lP9mQ4nR7sT1uV6wY0zB3cD5eF8gH1iJ2\n",
+            `github_pat = ${pat}\n` +
+            `aws_access_key_id = ${awsId}\n` +
+            `aws_secret_access_key = ${awsKey}\n`,
         );
     });
 
