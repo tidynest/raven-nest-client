@@ -5,6 +5,7 @@ node_modules
 out
 dist
 *.tgz
+/raven-nest-client
 
 # code coverage
 coverage

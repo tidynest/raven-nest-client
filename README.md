@@ -29,6 +29,18 @@ RAVEN_SERVER=/path/to/raven-server
 RAVEN_CONFIG=/path/to/config/default.toml
 ```
 
+## Standalone binary (optional)
+
+Bundle the client and the Bun runtime into a single executable — useful for
+handing the client to a machine without Bun installed:
+
+```bash
+bun run compile      # -> ./raven-nest-client (~100 MB, includes the Bun runtime)
+./raven-nest-client list
+```
+
+It still needs the `raven-server` binary present (see [Requirements](#requirements)).
+
 ## Usage
 
 **Interactive REPL** (no args):
