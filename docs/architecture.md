@@ -38,7 +38,7 @@
 
 Each layer depends only on the one directly below it. Users who want raw MCP access use `McpClient` directly; the REPL and commands use `RavenHelpers` for typed convenience.
 
-**Cross-cutting:** `src/config.ts` exports `SERVER_BIN` (binary path) and `SERVER_CONFIG` (config path, derived from the binary location). Both are env-overridable (`RAVEN_SERVER`, `RAVEN_CONFIG`). The transport injects `RAVEN_CONFIG` into the spawned server's environment so the server always finds its config regardless of the client's working directory.
+**Cross-cutting:** `src/config.ts` exports `SERVER_BIN` (a binary **path or a full launch command**, e.g. `docker run … <image>`) and `SERVER_CONFIG` (derived from the binary location for a local binary; `undefined` for a wrapper command). Both are env-overridable (`RAVEN_SERVER`, `RAVEN_CONFIG`). For a local binary the transport injects `RAVEN_CONFIG` into the spawned server's environment so it finds its config regardless of the client's CWD; for a Docker/wrapper command the server resolves its own config inside the container.
 
 ## Data flow: tool call
 
@@ -97,19 +97,15 @@ REPL prints: [progress] nmap scanning 127.0.0.1... (15s elapsed)
 
 ## Config resolution
 
-The server binary looks for `config/default.toml` relative to its CWD. Since the client spawns the server, the CWD is the client's directory — not the server project. Without intervention, the server silently falls back to built-in defaults, losing `tool_paths`, `sudo_tools`, and `[metasploit]` config.
+The server resolves `config/default.toml` relative to the binary (and its CWD); since the client spawns it, that wouldn't find the server project's config — so for a **local binary** the transport derives `SERVER_CONFIG` from the binary path and injects it, preserving `tool_paths`, `sudo_tools`, and `[metasploit]` config instead of silently falling back to built-in defaults.
 
 ```
-SERVER_BIN = ~/RustroverProjects/raven-nest-mcp/target/release/raven-server
-                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-                                                 resolve("..","..") from here
-                                                          |
-SERVER_CONFIG = ~/RustroverProjects/raven-nest-mcp/config/default.toml
-
+SERVER_BIN    = <client>/../raven-nest-mcp/target/release/raven-server   (default: sibling checkout, resolved via import.meta.dir)
+SERVER_CONFIG = <server-project>/config/default.toml                     (derived — local binary only)
 StdioTransport.start() passes: env.RAVEN_CONFIG = SERVER_CONFIG
 ```
 
-Both paths are overridable via env vars for non-standard layouts.
+If `RAVEN_SERVER` is a launch command instead (e.g. `docker run --rm -i ghcr.io/tidynest/raven-nest-mcp:latest`), the transport splits it into argv and spawns it directly; `SERVER_CONFIG` stays undefined and the server uses the config baked into the image. Override either via env for non-standard layouts.
 
 ## Type system
 
