@@ -57,16 +57,31 @@ export class StdioTransport {
     /** Spawn the Rust binary and kick off the background stdout reader.
      *  All three stdio channels are piped so we own the full data flow. */
     async start(): Promise<void> {
-        // Verify the binary exists before attempting to spawn
-        if (!await Bun.file(this.binPath).exists()) {
-            throw new Error(`Server binary not found: ${this.binPath}`);
+        // binPath is either a plain binary path or a wrapper command
+        // (e.g. `docker run --rm -i <image>`). A real file is spawned as-is so
+        // paths with spaces work; otherwise the string is split on whitespace
+        // into argv. A bare name (no "/") is left for PATH resolution.
+        const whole = this.binPath.trim();
+        const isFile = await Bun.file(whole).exists();
+        const argv = isFile ? [whole] : whole.split(/\s+/);
+        if (!isFile && argv.length === 1 && whole.includes("/")) {
+            throw new Error(
+                `Server not found: ${whole}\n` +
+                `Set RAVEN_SERVER to the raven-server binary path, or a launch ` +
+                `command like "docker run --rm -i ghcr.io/tidynest/raven-nest-mcp:latest".`,
+            );
         }
 
-        this.proc = Bun.spawn([this.binPath], {
+        // Only inject RAVEN_CONFIG for a local binary; a wrapper command (docker)
+        // resolves config inside the container (SERVER_CONFIG is undefined there).
+        const env: Record<string, string | undefined> = { ...process.env };
+        if (SERVER_CONFIG) env.RAVEN_CONFIG = SERVER_CONFIG;
+
+        this.proc = Bun.spawn(argv, {
             stdin: "pipe",   // we write JSON-RPC requests here
             stdout: "pipe",  // server writes JSON-RPC responses here
             stderr: "pipe",  // captured by stderrLoop into bounded buffer
-            env: { ...process.env, RAVEN_CONFIG: SERVER_CONFIG },
+            env,
         });
 
         // Fire-and-forget: readLoop runs in the background for the lifetime

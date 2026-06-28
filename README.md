@@ -1,13 +1,16 @@
 # raven-nest-client
 
 TypeScript MCP client for [raven-nest-mcp](https://github.com/tidynest/raven-nest-mcp).
-Speaks JSON-RPC 2.0 over stdio to the Rust MCP server (v0.2.0, 43 tools).
-Versioned in lockstep with the server: client `v0.2.0` targets server `v0.2.0`.
+Speaks JSON-RPC 2.0 over stdio to the Rust MCP server (43 tools). Drives either a
+local `raven-server` build or the published Docker image. Versioned alongside the
+server's `0.2.x` line.
 
 ## Requirements
 
 - [Bun](https://bun.sh) v1.3+
-- The compiled `raven-server` binary from raven-nest-mcp (tested against **v0.2.0**)
+- A `raven-server` to talk to — **either** a local build from
+  [raven-nest-mcp](https://github.com/tidynest/raven-nest-mcp), **or** Docker (to run
+  the published image — no local build needed)
 
 ## Setup
 
@@ -15,19 +18,26 @@ Versioned in lockstep with the server: client `v0.2.0` targets server `v0.2.0`.
 bun install
 ```
 
-By default the client looks for the server binary at
-`~/RustroverProjects/raven-nest-mcp/target/release/raven-server`.
-The server's config path is auto-derived from the binary location
-(`<server-project>/config/default.toml`), so features like `tool_paths`,
-`sudo_tools`, and Metasploit integration work regardless of the client's
-working directory.
+By default the client looks for a sibling `raven-nest-mcp` checkout's release build
+(`../raven-nest-mcp/target/release/raven-server`, resolved relative to the client —
+not your CWD). For a local binary the server's config is auto-derived from its
+location (`<server-project>/config/default.toml`), so `tool_paths`, `sudo_tools`,
+and Metasploit integration work regardless of where you run the client.
 
-Override either path with env vars or a `.env` file:
+`RAVEN_SERVER` can be a binary path **or a full launch command** — set it (or use a
+`.env` file) to point elsewhere, or to run the published Docker image:
 
 ```bash
+# a local binary in another location
 RAVEN_SERVER=/path/to/raven-server
-RAVEN_CONFIG=/path/to/config/default.toml
+RAVEN_CONFIG=/path/to/config/default.toml          # optional; only for local binaries
+
+# …or the published image (bundles all 22 tools — no local build needed)
+RAVEN_SERVER="docker run --rm -i ghcr.io/tidynest/raven-nest-mcp:latest"
 ```
+
+With the Docker command the server uses the config baked into the image; the client
+skips `RAVEN_CONFIG` injection automatically.
 
 ## Standalone binary (optional)
 
