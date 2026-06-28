@@ -2,8 +2,9 @@
 
 TypeScript MCP client for [raven-nest-mcp](https://github.com/tidynest/raven-nest-mcp).
 Speaks JSON-RPC 2.0 over stdio to the Rust MCP server (43 tools). Drives either a
-local `raven-server` build or the published Docker image. Versioned alongside the
-server's `0.2.x` line.
+local `raven-server` build or the published Docker image. **Versioned in lockstep
+with the server** — client and server always share the same version number, so a
+client `vX.Y.Z` pairs with server `vX.Y.Z`.
 
 ## Requirements
 
