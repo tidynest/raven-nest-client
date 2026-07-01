@@ -5,6 +5,7 @@
 
 import { StdioTransport } from "./transport";
 import { isJsonRpcError } from "../types";
+import pkg from "../../package.json";
 import type {
     JsonRpcResponse,
     InitialiseResult,
@@ -56,7 +57,7 @@ export class McpClient {
         const response = await this.transport.request("initialize", {
             protocolVersion:    "2025-03-26",
             capabilities:       {},
-            clientInfo: { name: "raven-nest-client", version: "0.2.0" },
+            clientInfo: { name: "raven-nest-client", version: pkg.version },
         });
 
         const result = this.unwrap<InitialiseResult>(response);
