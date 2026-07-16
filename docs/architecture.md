@@ -59,10 +59,10 @@ StdioTransport.request()
   2. Writes JSON + newline to proc.stdin
   3. Creates Promise + setTimeout(120s)
   4. Stores {resolve, reject, timer} in pending Map
-     |                              |
-     v (async)                      v (async, parallel)
-readLoop() reads stdout chunks      stderrLoop() reads stderr
-  -> splits on newlines              -> bounded buffer (100 lines)
+     |
+     v (async)
+readLoop() reads stdout chunks      (server stderr is inherited to the terminal)
+  -> splits on newlines
   -> JSON.parse each line
   -> if no id: dispatch to notification handler
   -> if id matches pending: clearTimeout, resolve Promise
@@ -112,14 +112,13 @@ If `RAVEN_SERVER` is a launch command instead (e.g. `docker run --rm -i ghcr.io/
 ```
 src/types/
   jsonrpc.ts    JsonRpcRequest, JsonRpcResponse, JsonRpcNotification, JsonRpcMessage
-  mcp.ts        InitialiseResult, ToolDefinition, ToolCallResult, LogLevel, LoggingNotificationParams
-  finding.ts    Severity, Finding, SaveFindingParams
-  scan.ts       ScanStatus, LaunchScanParams, ScanIdParams, ScanResultsParams
+  mcp.ts        InitialiseResult, ToolDefinition, ToolCallResult
+  finding.ts    SaveFindingParams
   index.ts      barrel re-exports
 ```
 
 Design choices:
-- **String literal unions** over TS enums: `"Critical" | "High" | "Medium" | "Low" | "Info"` maps directly to JSON without conversion
+- **Plain `string` for server-normalised fields** (`severity`): the server owns the canonical casing and enum, so the client sends a raw string and lets the server validate rather than duplicating a `Critical|High|…` union here
 - **`JsonRpcMessage` union** discriminated by presence of `id` field: notifications have no `id`, responses do
 - **Optional properties** (`evidence?: string`) map to Rust `Option<String>` and are omitted from JSON when undefined
 - **`structuredContent`** on `ToolCallResult` carries the server's machine-readable result fields (`finding_id`, `deleted`, `scan_id`, `active`); helpers read it first and fall back to parsing the human-readable text
@@ -130,16 +129,16 @@ Design choices:
 |---------|-----------|
 | Request timeouts | `setTimeout` per request, 120s default, cleared on response or stop |
 | Progress-based timeout reset | `resetPendingTimers()` restarts all pending timers when progress notifications arrive |
-| Stderr capture | Parallel `stderrLoop()`, bounded buffer (100 lines via push/shift) |
+| Server stderr | `stderr: "inherit"` — server diagnostics pass straight to the client's terminal; the kernel drains the pipe so a chatty tool can't block |
 | Notification dispatch | Callback registered via `onNotification()`, dispatched with optional chaining |
 | Tool list caching | `cachedTools: T[] \| null` in McpClient, null = not fetched, cleared on disconnect |
 | Config injection | `RAVEN_CONFIG` env var passed to spawned server via `Bun.spawn({ env })` |
 
 ## Test coverage
 
-**Integration tests** — 43 tests across 3 files (`src/`), against the real Rust server:
+**Integration tests** — 42 tests across 3 files (`src/`), against the real Rust server:
 - Handshake and protocol negotiation
-- Tool discovery and caching (cache hit, refresh, disconnect clears)
+- Tool discovery and caching (cache hit, disconnect clears)
 - Tool invocation (ping, findings CRUD, scan lifecycle, report generation)
 - Error handling (nonexistent tool, missing params, invalid IDs)
 - Typed helper layer (RavenHelpers finding, scan + engagement methods)

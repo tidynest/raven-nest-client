@@ -180,16 +180,6 @@ describe("Tool list caching", () => {
         expect(second.tools).toBe(first.tools);
     });
 
-    test("refreshTools re-fetches from server", async () => {
-        const cached = await client.listTools();
-        const fresh = await client.refreshTools();
-
-        // Different array reference confirms new data from server
-        expect(fresh.tools).not.toBe(cached.tools);
-        // But content should be identical since tools haven't changed
-        expect(fresh.tools.length).toBe(cached.tools.length);
-    });
-
     afterAll(async () => {
         await client.disconnect();
     });

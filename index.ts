@@ -5,7 +5,7 @@
 // Flags: --version, --help, --no-color
 
 import { createInterface } from "readline";
-import { McpClient } from "./src/client";
+import { McpClient } from "./src/client/mcp-client";
 import { RavenHelpers } from "./src/client/helpers";
 import { handleScanCommand } from "./src/commands/scan";
 import { handleFindingCommand, parseArgs } from "./src/commands/finding";
@@ -133,6 +133,36 @@ function printToolDetail(tool: ToolDefinition): void {
     console.log();
 }
 
+/** Fetch and print the compact tool list. Shared by the CLI and REPL. */
+async function runList(client: McpClient): Promise<void> {
+    const { tools } = await client.listTools();
+    printToolList(tools);
+}
+
+/** Look up a tool by name and print its detail, or an "unknown tool" error. */
+async function runDescribe(client: McpClient, toolName: string): Promise<void> {
+    const { tools } = await client.listTools();
+    const match = tools.find(t => t.name === toolName);
+    if (match) printToolDetail(match);
+    else console.log(`${c.err}Unknown tool:${c.reset} ${toolName}`);
+}
+
+/** Coerce args to their schema types, invoke the tool, then print each content
+ *  block and the elapsed time. Shared by the CLI and REPL call paths. */
+async function runCall(client: McpClient, toolName: string, argTokens: string[]): Promise<void> {
+    const { tools } = await client.listTools();
+    const def       = tools.find(t => t.name === toolName);
+    const raw       = parseArgs(argTokens);
+    const args      = def ? coerceArgs(raw, def) : raw;
+
+    const t0        = performance.now();
+    const result    = await client.callTool(toolName, args);
+    const elapsed   = ((performance.now() - t0) / 1000).toFixed(1);
+
+    for (const block of result.content) console.log(block.text);
+    console.log(`${c.dim}(completed in ${elapsed}s)${c.reset}`);
+}
+
 /** Main entry point. Handles CLI flags (--version, --help), dispatches
  *  subcommands (list, call, describe), or falls through to the REPL. */
 async function main() {
@@ -190,35 +220,13 @@ async function main() {
 
         switch (command) {
             case "list":
-                const { tools } = await client.listTools();
-                printToolList(tools);
+                await runList(client);
                 break;
-
             case "call":
-                // Coerce string args to schema types (number, boolean, etc.)
-                const rawArgs   = parseArgs(process.argv.slice(4));
-                const { tools: callDefs } = await client.listTools();
-                const callDef   = callDefs.find(t => t.name === toolName);
-                const args      = callDef ? coerceArgs(rawArgs, callDef) : rawArgs;
-                const t0        = performance.now();
-                const result    = await client.callTool(toolName!, args);
-                const elapsed   = ((performance.now() - t0) / 1000).toFixed(1);
-
-                // Print each content block from the tool response
-                for (const block of result.content) {
-                    console.log(block.text);
-                }
-                console.log(`${c.dim}(completed in ${elapsed}s)${c.reset}`);
+                await runCall(client, toolName!, process.argv.slice(4));
                 break;
-
             case "describe":
-                const { tools: allTools } = await client.listTools();
-                const match = allTools.find(t => t.name === toolName);
-                if (!match) {
-                    console.log(`${c.err}Unknown tool:${c.reset} ${toolName}`);
-                } else {
-                    printToolDetail(match);
-                }
+                await runDescribe(client, toolName!);
                 break;
         }
     } catch (err) {
@@ -298,8 +306,7 @@ async function repl() {
             try {
                 switch (cmd) {
                     case "list":
-                        const {tools: listResult} = await client.listTools();
-                        printToolList(listResult);
+                        await runList(client);
                         break;
 
                     case "call":
@@ -307,19 +314,7 @@ async function repl() {
                             console.log(`${c.label}Usage:${c.reset} call <tool> [key=value ...]`);
                             break;
                         }
-                        // Coerce string args to schema types (cached, no round-trip)
-                        const rawCallArgs = parseArgs(parts.slice(2));
-                        const {tools: replDefs} = await client.listTools();
-                        const replDef   = replDefs.find(t => t.name === toolName);
-                        const args      = replDef ? coerceArgs(rawCallArgs, replDef) : rawCallArgs;
-                        const t0        = performance.now();
-                        const result    = await client.callTool(toolName!, args);
-                        const elapsed   = ((performance.now() -t0) / 1000).toFixed(1);
-
-                        for (const block of result.content) {
-                            console.log(block.text);
-                        }
-                        console.log(`${c.dim}(completed in ${elapsed}s)${c.reset}`);
+                        await runCall(client, toolName, parts.slice(2));
                         break;
 
                     case "describe":
@@ -327,13 +322,7 @@ async function repl() {
                             console.log(`${c.label}Usage:${c.reset} describe <tool>`);
                             break;
                         }
-                        const {tools: allTools} = await client.listTools();
-                        const found = allTools.find(t => t.name === toolName);
-                        if (!found) {
-                            console.log(`${c.err}Unknown tool:${c.reset} ${toolName}`);
-                        } else {
-                            printToolDetail(found);
-                        }
+                        await runDescribe(client, toolName);
                         break;
 
                     // Scan management shortcuts

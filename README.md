@@ -141,7 +141,7 @@ Files are written under the server's `output_dir` (default `/tmp/raven-nest`), o
 ```bash
 bun test src/
 ```
-43 tests, 59 assertions — handshake, tool calls, finding CRUD, scan lifecycle, engagement scoping, caching, errors.
+42 tests, 57 assertions — handshake, tool calls, finding CRUD, scan lifecycle, engagement scoping, caching, errors.
 
 **E2E tests** (require Docker targets + server config):
 ```bash
@@ -178,7 +178,7 @@ Metasploit tests require `msfrpcd` running on port 55553.
 | `src/commands/recon.ts` | Recon workflow — nmap discovery → whatweb on web ports (deterministic pipeline) |
 | `src/types/jsonrpc.ts` | JSON-RPC 2.0 types + notification type |
 | `src/types/mcp.ts` | MCP protocol types + logging notification params |
-| `src/types/finding.ts` | Finding and severity types |
+| `src/types/finding.ts` | `SaveFindingParams` — the save_finding request shape |
 | `src/types/scan.ts` | Scan status and parameter types |
 | `src/client/mcp-client.test.ts` | Integration tests — handshake, tools, findings, scans, caching, errors |
 | `src/client/helpers.test.ts` | Helper layer tests — typed finding/scan wrappers |

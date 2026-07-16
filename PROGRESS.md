@@ -249,11 +249,19 @@ A TypeScript + Bun MCP client for [raven-nest-mcp](https://github.com/tidynest/r
 - Wired into the REPL: dispatch, tab completion, and a new **Workflows** help section. 3 pure tests in `phase1-pure` (parser + filter). Live smoke vs localhost: nmap found 4 ports, the filter picked `:8080` (correctly skipping ipp/postgresql and a mislabeled `:8081`), whatweb fingerprinted it.
 - E2E 64→67; `bunx tsc --noEmit` clean.
 
+### Step 48 — Over-engineering cleanup (2026-07-16)
+- Audit-driven dead-code removal, **no behaviour change**. Deleted unused types: `src/types/scan.ts` in full (`ScanStatus`, `LaunchScanParams`, `ScanIdParams`, `ScanResultsParams` — the helpers use positional args, never these), `Finding` + `Severity` from `finding.ts` (kept `SaveFindingParams`), and `ClientCapabilities` / `LogLevel` / `LoggingNotificationParams` from `mcp.ts` (all read inline).
+- Transport: replaced the unread stderr capture (`stderrLoop`, bounded buffer, `getStderr()` — zero callers) with `stderr: "inherit"`. Server diagnostics now reach the terminal; the kernel drains the pipe so a chatty tool can't block.
+- Removed `McpClient.refreshTools()` (no runtime caller — the CLI lists tools once per connection) and its test.
+- Deduped the `list` / `call` / `describe` logic shared by the CLI and REPL into `runList` / `runCall` / `runDescribe` in `index.ts`.
+- Folded the thrice-repeated `name=<number>` option parsing in `scan.ts` into one `numOpt()` helper.
+- Deleted the unused `src/client/index.ts` barrel (only `McpClient` was imported — now imported directly from `mcp-client`).
+- Net **−157 source lines**; 2 files removed. `bunx tsc --noEmit` clean; 108/109 tests pass (the 1 fail is the Juice Shop Docker target being down, unrelated to the change).
+
 ## Totals
 
-- **110 tests** (43 integration + 67 E2E), all passing
-- **16 new files**, **12 modified files**
-- Steps 1-47 complete
+- **109 tests** (42 integration + 67 E2E), all passing when the Docker targets are up
+- Steps 1-48 complete; Step 48 removed 2 files and ~157 source lines
 
 ## Key Learnings
 

@@ -14,7 +14,7 @@ import { SERVER_CONFIG } from "../config";
 
 export class StdioTransport {
     // The child process handle - null until start() is called
-    private proc: Subprocess<"pipe", "pipe", "pipe"> | null = null;
+    private proc: Subprocess<"pipe", "pipe", "inherit"> | null = null;
 
     // Monotonically increasing counter so every request gets a unique id
     private requestId = 0;
@@ -33,11 +33,6 @@ export class StdioTransport {
     // Accumulates partial stdout chunks until a full newline-delimited JSON
     // message is available (the server sends one JSON object per line)
     private buffer = "";
-
-    // Captures stderr output from the server process. Bounded to prevent
-    // unbounded memory growth from verbose tools (nmap, nikto, etc.)
-    private stderrLines: string[] = [];
-    private readonly STDERR_MAX = 100;
 
     // Optional callback for server-initiated notifications (no id field).
     // Set via onNotification() - null means notifications are silently dropped.
@@ -78,9 +73,9 @@ export class StdioTransport {
         if (SERVER_CONFIG) env.RAVEN_CONFIG = SERVER_CONFIG;
 
         this.proc = Bun.spawn(argv, {
-            stdin: "pipe",   // we write JSON-RPC requests here
-            stdout: "pipe",  // server writes JSON-RPC responses here
-            stderr: "pipe",  // captured by stderrLoop into bounded buffer
+            stdin: "pipe",     // we write JSON-RPC requests here
+            stdout: "pipe",    // server writes JSON-RPC responses here
+            stderr: "inherit", // server diagnostics pass straight to our terminal
             env,
         });
 
@@ -90,7 +85,6 @@ export class StdioTransport {
         // `void` tells the IDE this is intentionally unawaited. Similar to
         // Rust's `let _ = ...` pattern for ignoring a value on purpose.
         void this.readLoop();
-        void this.stderrLoop();
     }
 
     /** Send a JSON-RPC request and wait for the matching response.
@@ -157,13 +151,6 @@ export class StdioTransport {
 
         this.proc?.kill();
         this.proc = null;
-    }
-
-    /** Returns a snapshot of captured stderr lines (most recent up to STDERR_MAX). */
-    getStderr(): string[] {
-        // Spread `[...]` returns a copy so callers can't mutate the internal buffer.
-        // Like Rust's `.clone()` on a `Vec` - defensive by default.
-        return [...this.stderrLines];
     }
 
     /** Reset the timeout timer on all pending requests. Called when a progress
@@ -241,41 +228,6 @@ export class StdioTransport {
                         // Log but don't rethrow - one malformed line shouldn't kill the read loop
                         console.error("Failed to parse server output:", err);
                     }
-                }
-            }
-        } finally {
-            reader.releaseLock();
-        }
-    }
-
-    /** Background loop: reads stderr line-by-line into a bounded buffer.
-     *  Mirrors readLoop() but doesn't parse JSON - just captures raw text
-     *  for diagnostics (e.g. tool warnings, server debug output). */
-    private async stderrLoop(): Promise<void> {
-        if (!this.proc?.stderr) return;
-
-        const decoder = new TextDecoder();
-        const reader = this.proc.stderr.getReader();
-        let stderrBuffer = "";
-
-        try {
-            while (true) {
-                const {done, value} = await reader.read();
-                if (done) break;
-
-                stderrBuffer += decoder.decode(value, {stream: true});
-
-                // Same line-extraction logic as readLoop
-                let newLineIdx: number;
-                while ((newLineIdx = stderrBuffer.indexOf("\n")) !== -1) {
-                    const line = stderrBuffer.slice(0, newLineIdx).trim();
-                    stderrBuffer = stderrBuffer.slice(newLineIdx + 1);
-
-                    if (!line) continue;
-
-                    // Push into bounded ring buffer - drop oldest line if full
-                    this.stderrLines.push(line);
-                    if (this.stderrLines.length > this.STDERR_MAX) this.stderrLines.shift();
                 }
             }
         } finally {

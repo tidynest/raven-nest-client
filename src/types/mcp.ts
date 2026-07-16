@@ -3,13 +3,6 @@
 // on top of JSON-RPC. These define the handshake, tool discovery, tool
 // invocation, and logging notification shapes used by the raven-nest server.
 
-/** Client capabilities sent during the MCP handshake.
- *  Tells the server what features this client supports. */
-export interface ClientCapabilities {
-    /** Whether the client can provide workspace roots and track changes to them */
-    roots?: { listChanged?: boolean };
-}
-
 /** Server capabilities returned during the MCP handshake.
  *  Tells the client what features the server supports. */
 export interface ServerCapabilities {
@@ -76,17 +69,4 @@ export interface ToolCallResult {
      *  server attaches this on finding/scan tools so clients can read fields
      *  (e.g. finding_id, deleted, scan_id) instead of parsing the human text. */
     structuredContent?: Record<string, unknown>;
-}
-
-/** Log levels for server notifications - matches the MCP spec severity ordering.
- *  The server's ProgressTicker emits these during long-running tool executions. */
-export type LogLevel = "debug" | "info" | "warning" | "error" | "critical";
-
-/** Params sent with "notifications/message" from the server's ProgressTicker.
- *  The `data` field usually contains a human-readable progress string. */
-export interface LoggingNotificationParams {
-    /** Severity of the log message */
-    level: LogLevel;
-    /** The log payload - typically a progress string, but can be any JSON value */
-    data:  unknown;
 }

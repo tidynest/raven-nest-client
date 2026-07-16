@@ -26,9 +26,7 @@ export async function handleScanCommand(
                 return;
             }
             // Check remaining args for an optional timeout override
-            const opts      = parts.slice(4);
-            const timeout   = opts.find(s => s.startsWith("timeout_secs="));
-            const secs      = timeout ? Number(timeout.split("=")[1]) : undefined;
+            const secs = numOpt(parts.slice(4), "timeout_secs");
             if (secs !== undefined && isNaN(secs)) {
                 console.log(`${c.label}Error:${c.reset} timeout_secs must be a number`);
                 return;
@@ -51,11 +49,9 @@ export async function handleScanCommand(
                 return;
             }
             // Parse optional pagination arguments from remaining tokens
-            const resOpts   = parts.slice(3);
-            const offsetStr = resOpts.find(s => s.startsWith("offset="));
-            const limitStr  = resOpts.find(s => s.startsWith("limit="));
-            const offset    = offsetStr ? Number(offsetStr.split("=")[1]) : undefined;
-            const limit     = limitStr  ? Number(limitStr.split("=")[1])  : undefined;
+            const resOpts = parts.slice(3);
+            const offset  = numOpt(resOpts, "offset");
+            const limit   = numOpt(resOpts, "limit");
             if ((offset !== undefined && isNaN(offset)) || (limit !== undefined && isNaN(limit))) {
                 console.log(`${c.label}Error:${c.reset} offset and limit must be numbers`);
                 return;
@@ -80,4 +76,13 @@ export async function handleScanCommand(
             // No recognised subcommand - show usage hint
             console.log(`${c.label}Usage:${c.reset} scan <launch|status|results|cancel|list>`);
     }
+}
+
+/** Read an optional `name=<number>` token from a list. Returns the parsed
+ *  number, undefined if the token is absent, or NaN if present but non-numeric
+ *  (the caller reports that). Splits with slice so a value that itself contains
+ *  "=" survives, matching parseArgs' behaviour. */
+function numOpt(tokens: string[], name: string): number | undefined {
+    const hit = tokens.find(s => s.startsWith(`${name}=`));
+    return hit ? Number(hit.slice(name.length + 1)) : undefined;
 }

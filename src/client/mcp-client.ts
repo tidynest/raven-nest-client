@@ -16,7 +16,7 @@ import type {
 
 export class McpClient {
     // Cache for the tool list - populated on first listTools() call,
-    // cleared on disconnect() or refreshTools()
+    // cleared on disconnect()
     private cachedTools:    ToolDefinition[] | null = null;
 
     // The underlying stdio transport that manages the server process
@@ -69,7 +69,7 @@ export class McpClient {
     }
 
     /** Fetch every tool the server exposes, with names, descriptions, and schemas.
-     *  Results are cached after the first call - use refreshTools() to force re-fetch. */
+     *  Results are cached after the first call; disconnect() clears the cache. */
     async listTools(): Promise<ToolListResult> {
         // Return cached tools if available to avoid redundant round-trips
         if (this.cachedTools) return { tools: this.cachedTools };
@@ -78,13 +78,6 @@ export class McpClient {
         const result        = this.unwrap<ToolListResult>(response);
         this.cachedTools    = result.tools;
         return result;
-    }
-
-    /** Clear the tool cache and re-fetch the list from the server.
-     *  Useful if the server's tool set may have changed at runtime. */
-    async refreshTools(): Promise<ToolListResult> {
-        this.cachedTools = null;
-        return this.listTools();
     }
 
     /** Invoke a server tool by name.
