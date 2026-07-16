@@ -31,27 +31,30 @@ const c = {
 } as const;
 
 /** Tokenize a REPL input line respecting quoted strings.
- *  Handles double and single quotes so multi-word values survive intact.
- *  e.g. title="SQL Injection" becomes the single token title=SQL Injection */
-function tokenize(line: string): string[] {
+ *  Handles double and single quotes so multi-word values survive intact
+ *  (e.g. title="SQL Injection" -> the single token title=SQL Injection).
+ *  A backslash escapes a following quote (title="a\"b" -> a"b); every other
+ *  backslash is literal, so Windows paths and regex in values survive.
+ *  Exported so tests exercise the shipped function, not a copy. */
+export function tokenize(line: string): string[] {
     const tokens: string[] = [];
     let current = "";
     let quote = "";
 
-    for (const ch of line) {
+    for (let i = 0; i < line.length; i++) {
+        const ch = line[i]!;
+        // Backslash escapes only a following quote char - consume it literally.
+        if (ch === "\\" && (line[i + 1] === '"' || line[i + 1] === "'")) {
+            current += line[++i]!;
+            continue;
+        }
         if (quote) {
-            if (ch === quote) {
-                quote = "";
-            } else {
-                current += ch;
-            }
+            if (ch === quote) quote = "";
+            else current += ch;
         } else if (ch === '"' || ch === "'") {
             quote = ch;
         } else if (ch === " ") {
-            if (current) {
-                tokens.push(current);
-                current = "";
-            }
+            if (current) { tokens.push(current); current = ""; }
         } else {
             current += ch;
         }
@@ -63,8 +66,13 @@ function tokenize(line: string): string[] {
 /** Coerce string values to their schema-declared types before sending to the
  *  server. parseArgs() returns all strings, but JSON-RPC needs proper types.
  *  Looks up each key in the tool's inputSchema and converts "integer"/"number"
- *  to Number and "boolean" to true/false. Unknown keys pass through as strings. */
-function coerceArgs(raw: Record<string, string>, tool: ToolDefinition): Record<string, unknown> {
+ *  to Number and "boolean" to true/false. Unknown keys, and values that don't
+ *  parse as a number, pass through as strings so the server validates them.
+ *  Typed to just the schema shape it reads, so tests can pass minimal tools. */
+export function coerceArgs(
+    raw:  Record<string, string>,
+    tool: { inputSchema: { properties?: Record<string, unknown> } },
+): Record<string, unknown> {
     const props = tool.inputSchema.properties ?? {};
     const result: Record<string, unknown> = {};
 
@@ -83,7 +91,9 @@ function coerceArgs(raw: Record<string, string>, tool: ToolDefinition): Record<s
             : String(typeVal ?? "string").split(",").map(t => t.trim());
 
         if (types.includes("number") || types.includes("integer")) {
-            const num = Number(value);
+            // Number("") and Number("  ") are 0 - treat an empty value as
+            // unparseable so a stray `key=` doesn't silently become 0.
+            const num = value.trim() === "" ? NaN : Number(value);
             result[key] = isNaN(num) ? value : num;
         } else if (types.includes("boolean")) {
             result[key] = value === "true";
@@ -419,4 +429,6 @@ async function connect(client: McpClient): Promise<void> {
     console.log(`${c.dim}Type "help" for commands, "quit" to exit.${c.reset}\n`);
 }
 
-main().catch(console.error);
+// Only auto-run the CLI when executed directly (bun run index.ts). Guarding on
+// import.meta.main lets tests import tokenize/coerceArgs without launching main().
+if (import.meta.main) main().catch(console.error);

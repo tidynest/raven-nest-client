@@ -258,10 +258,17 @@ A TypeScript + Bun MCP client for [raven-nest-mcp](https://github.com/tidynest/r
 - Deleted the unused `src/client/index.ts` barrel (only `McpClient` was imported — now imported directly from `mcp-client`).
 - Net **−157 source lines**; 2 files removed. `bunx tsc --noEmit` clean; 108/109 tests pass (the 1 fail is the Juice Shop Docker target being down, unrelated to the change).
 
+### Step 49 — Correctness nits + testable pure helpers (2026-07-16)
+- **`coerceArgs`**: `Number("")` is `0`, so a stray `port=` on a numeric field silently sent `0`. Now an empty/whitespace value is treated as unparseable and kept as the raw string, so the server validates and reports it.
+- **`tokenize`**: added backslash escaping for quote chars — `title="SQL \"injection\""` now yields `title=SQL "injection"`. Only quotes are escapable; other backslashes stay literal, so Windows paths and regex in values survive.
+- **`McpClient.connect()`**: now checks the server's negotiated `protocolVersion` against the single `PROTOCOL_VERSION` the client implements and throws a clear error on mismatch, instead of proceeding over an unknown wire contract.
+- **Testability**: guarded `main()` with `if (import.meta.main)` and exported `tokenize` / `coerceArgs`, so `phase1-pure` and `phase2-repl` now import the shipped functions instead of copy-pasted duplicates (~80 lines of inlined test code removed). `coerceArgs` param narrowed to the schema shape it actually reads.
+- Added pure tests for the escaped-quote, literal-backslash, and empty-numeric cases. Net **−43 lines**. `tsc` clean; pure + affected server suites green (Juice Shop still the only unrelated fail).
+
 ## Totals
 
-- **109 tests** (42 integration + 67 E2E), all passing when the Docker targets are up
-- Steps 1-48 complete; Step 48 removed 2 files and ~157 source lines
+- **112 tests** (42 integration + 70 E2E), all passing when the Docker targets are up
+- Steps 1-49 complete
 
 ## Key Learnings
 

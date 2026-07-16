@@ -14,6 +14,11 @@ import type {
     ToolCallResult,
 } from "../types";
 
+/** The single MCP protocol version this client implements. The server must
+ *  echo it back during initialize; any other value means it negotiated a
+ *  protocol we don't speak, so we refuse the handshake. */
+const PROTOCOL_VERSION = "2025-03-26";
+
 export class McpClient {
     // Cache for the tool list - populated on first listTools() call,
     // cleared on disconnect()
@@ -55,12 +60,22 @@ export class McpClient {
 
         // Step 1: negotiate protocol version and exchange capabilities
         const response = await this.transport.request("initialize", {
-            protocolVersion:    "2025-03-26",
+            protocolVersion:    PROTOCOL_VERSION,
             capabilities:       {},
             clientInfo: { name: "raven-nest-client", version: pkg.version },
         });
 
         const result = this.unwrap<InitialiseResult>(response);
+
+        // The server echoes our version when it supports it; anything else means
+        // it chose a protocol we don't implement, so fail fast instead of
+        // proceeding over an unknown wire contract.
+        if (result.protocolVersion !== PROTOCOL_VERSION) {
+            throw new Error(
+                `Server negotiated MCP protocol ${result.protocolVersion}, but this ` +
+                `client only supports ${PROTOCOL_VERSION}. Update the client to match the server.`,
+            );
+        }
 
         // Step 2: tell the server we're ready (notification = no response expected)
         await this.transport.notify("notifications/initialized");

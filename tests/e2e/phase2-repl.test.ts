@@ -2,52 +2,12 @@
 // Exercises the same functions the REPL uses, bypassing readline.
 
 import { describe, test, expect, afterAll, spyOn } from "bun:test";
+import { tokenize, coerceArgs } from "../../index";
 import { McpClient } from "../../src/client/mcp-client";
 import { RavenHelpers } from "../../src/client/helpers";
 import { handleFindingCommand, parseArgs } from "../../src/commands/finding";
 import { handleScanCommand } from "../../src/commands/scan";
 import { SERVER_BIN } from "../../src/config";
-
-// -- Inlined from index.ts (can't import without triggering main()) --
-
-function tokenize(line: string): string[] {
-    const tokens: string[] = [];
-    let current = "";
-    let quote = "";
-    for (const ch of line) {
-        if (quote) {
-            if (ch === quote) { quote = ""; } else { current += ch; }
-        } else if (ch === '"' || ch === "'") {
-            quote = ch;
-        } else if (ch === " ") {
-            if (current) { tokens.push(current); current = ""; }
-        } else {
-            current += ch;
-        }
-    }
-    if (current) tokens.push(current);
-    return tokens;
-}
-
-function coerceArgs(raw: Record<string, string>, tool: { inputSchema: { properties?: Record<string, unknown> } }): Record<string, unknown> {
-    const props = tool.inputSchema.properties ?? {};
-    const result: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(raw)) {
-        const schema = props[key] as Record<string, unknown> | undefined;
-        if (!schema) { result[key] = value; continue; }
-        const typeVal = schema.type;
-        const types: string[] = Array.isArray(typeVal) ? typeVal : String(typeVal ?? "string").split(",").map(t => t.trim());
-        if (types.includes("number") || types.includes("integer")) {
-            const num = Number(value);
-            result[key] = isNaN(num) ? value : num;
-        } else if (types.includes("boolean")) {
-            result[key] = value === "true";
-        } else {
-            result[key] = value;
-        }
-    }
-    return result;
-}
 
 // No-colour map for testing (empty strings = no ANSI codes)
 const c: Record<string, string> = {

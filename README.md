@@ -160,7 +160,7 @@ bun test tests/e2e/phase4-progress.test.ts            # progress/stderr separati
 docker stop juice-shop infallible_satoshi
 ```
 
-67 E2E tests covering 36 of the server tools against Juice Shop (port 3000) and bWAPP (port 80), plus local filesystem fixtures for the secret scanners (gitleaks, trufflehog) and pure-function tests for the recon parser.
+70 E2E tests covering 36 of the server tools against Juice Shop (port 3000) and bWAPP (port 80), plus local filesystem fixtures for the secret scanners (gitleaks, trufflehog) and pure-function tests for the recon parser, tokenizer, and arg coercion.
 Metasploit tests require `msfrpcd` running on port 55553.
 
 ## Project structure
@@ -183,7 +183,7 @@ Metasploit tests require `msfrpcd` running on port 55553.
 | `src/client/mcp-client.test.ts` | Integration tests — handshake, tools, findings, scans, caching, errors |
 | `src/client/helpers.test.ts` | Helper layer tests — typed finding/scan wrappers |
 | `src/commands/engagement.test.ts` | Engagement command tests — set → active → list round-trip |
-| `tests/e2e/` | E2E tests — 36 tools against Docker targets + filesystem fixtures (6 files, 67 tests) |
+| `tests/e2e/` | E2E tests — 36 tools against Docker targets + filesystem fixtures (6 files, 70 tests) |
 
 See [docs/architecture.md](docs/architecture.md) for the layered architecture and data flow.
 

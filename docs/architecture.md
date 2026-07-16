@@ -143,7 +143,7 @@ Design choices:
 - Error handling (nonexistent tool, missing params, invalid IDs)
 - Typed helper layer (RavenHelpers finding, scan + engagement methods)
 
-**E2E tests** — 67 tests across 6 files (`tests/e2e/`), against Docker targets:
+**E2E tests** — 70 tests across 6 files (`tests/e2e/`), against Docker targets:
 - Pure function tests: tokenize, coerceArgs, parseArgs edge cases, recon port parsing + web-port filter
 - REPL code paths: call with coerceArgs, quoted multi-word values, NaN validation, error recovery
 - 36 server tools exercised against Juice Shop (port 3000), bWAPP (port 80), and local filesystem fixtures
