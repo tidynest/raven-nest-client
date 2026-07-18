@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions track the raven-nest-mcp server's feature line; client-only fixes bump the patch.
 
+## [0.2.8] - 2026-07-18
+
+Lockstep release tracking raven-nest-mcp 0.2.8. No client-side wire or tool
+changes. Server-side additions: a NetExec output parser (completing structured
+parser coverage across all 22 tools) and `serverInfo.name` aligned to the MCP
+registry name. Adds status badges to the README.
+
 ## [0.2.7] — 2026-07-16
 
 Client-only maintenance release: correctness fixes plus a dead-code and
