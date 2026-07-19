@@ -152,3 +152,13 @@ Design choices:
 - Metasploit: msf_search, msf_module_info, msf_auxiliary, msf_sessions, msf_exploit, msf_post
 - Progress notification routing (stderr only) and timer reset verification
 - Edge cases: invalid UUID behavior, CLI stdout/stderr separation
+
+## Releasing & badges
+
+The README status badges are self-hosted SVGs under `badges/`, not shields.io URLs — GitHub serves repo files first-party, so they never break on its Camo image proxy. They are generated, never hand-edited.
+
+`scripts/gen-badges.ts` is the single source of truth: the release badge reads `package.json` `version`, the tool-count badge reads `TOOL_COUNT` in that script, and segment widths are computed so no SVG geometry is edited by hand.
+
+- **Cut a release:** `npm version <patch|minor|major>` (lockstep with the server — see the version note in the README). The `version` lifecycle script regenerates the badges and stages them into the version commit automatically.
+- **Change the tool count:** edit `TOOL_COUNT` in `scripts/gen-badges.ts`, then `bun run badges`.
+- **Regenerate on demand:** `bun run badges`.

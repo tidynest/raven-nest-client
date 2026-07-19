@@ -8,7 +8,9 @@
   "scripts": {
     "start": "bun run index.ts",
     "test": "bun test",
-    "compile": "bun build --compile ./index.ts --outfile raven-nest-client"
+    "compile": "bun build --compile ./index.ts --outfile raven-nest-client",
+    "badges": "bun run scripts/gen-badges.ts",
+    "version": "bun run badges && git add badges"
   },
   "license": "MIT",
   "devDependencies": {

@@ -1,13 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="191" height="20" role="img" aria-label="Model Context Protocol: client">
+<svg xmlns="http://www.w3.org/2000/svg" width="223" height="20" role="img" aria-label="Model Context Protocol: client">
   <title>Model Context Protocol: client</title>
   <g shape-rendering="crispEdges">
-    <rect width="143" height="20" fill="#555"/>
-    <rect x="143" width="48" height="20" fill="#007ec6"/>
+    <rect width="166" height="20" fill="#555"/>
+    <rect x="166" width="57" height="20" fill="#007ec6"/>
   </g>
   <g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" font-size="11">
-    <text x="72" y="15" fill="#010101" fill-opacity=".3">Model Context Protocol</text>
-    <text x="72" y="14">Model Context Protocol</text>
-    <text x="167" y="15" fill="#010101" fill-opacity=".3">client</text>
-    <text x="167" y="14">client</text>
+    <text x="83" y="15" fill="#010101" fill-opacity=".3">Model Context Protocol</text>
+    <text x="83" y="14">Model Context Protocol</text>
+    <text x="194.5" y="15" fill="#010101" fill-opacity=".3">client</text>
+    <text x="194.5" y="14">client</text>
   </g>
 </svg>
