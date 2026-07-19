@@ -1,9 +1,9 @@
 # raven-nest-client
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
-[![Release](https://img.shields.io/github/v/release/tidynest/raven-nest-client?sort=semver&style=flat-square&color=orange)](https://github.com/tidynest/raven-nest-client/releases)
-![MCP tools](https://img.shields.io/badge/MCP%20tools-43-blueviolet?style=flat-square)
-[![Model Context Protocol](https://img.shields.io/badge/Model%20Context%20Protocol-client-blue?style=flat-square)](https://modelcontextprotocol.io)
+[![License: MIT](badges/license-mit.svg)](LICENSE)
+[![Release](badges/release.svg)](https://github.com/tidynest/raven-nest-client/releases)
+![MCP tools](badges/mcp-tools.svg)
+[![Model Context Protocol](badges/mcp-client.svg)](https://modelcontextprotocol.io)
 
 TypeScript MCP client for [raven-nest-mcp](https://github.com/tidynest/raven-nest-mcp).
 Speaks JSON-RPC 2.0 over stdio to the Rust MCP server (43 tools). Drives either a
