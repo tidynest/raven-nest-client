@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions track the raven-nest-mcp server's feature line; client-only fixes bump the patch.
 
+## [0.3.0] - 2026-08-31
+
+Lockstep release tracking raven-nest-mcp 0.3.0. No client-side changes needed:
+tools are discovered dynamically via `tools/list`, and the server's new
+`structured_content` fields ride alongside the text output the client already
+reads.
+
+Server-side additions: target discovery tracking (`list_targets`,
+`get_target_info`), `diff_scans`, `structured_content` on `run_nmap` and
+`run_nuclei`, a non-root Docker image, a budget-exhaustion fix that keeps
+findings and report tools usable, argument-injection guards on
+hydra/sqlmap/ffuf, and cargo-deny plus MSRV CI jobs. Badge tool count
+bumped 43 to 46.
+
 ## [0.2.9] - 2026-08-02
 
 Lockstep release tracking raven-nest-mcp 0.2.9. No client-side wire or tool

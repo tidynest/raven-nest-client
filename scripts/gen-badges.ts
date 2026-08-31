@@ -11,7 +11,7 @@
 import pkg from "../package.json";
 
 /** Server tool surface shown on the "MCP tools" badge. Bump when it changes. */
-export const TOOL_COUNT = 43;
+export const TOOL_COUNT = 46;
 
 const COLORS = { blue: "#007ec6", orange: "#fe7d37", violet: "#8a2be2" };
 
