@@ -34,7 +34,7 @@ changes. Server-side additions: a NetExec output parser (completing structured
 parser coverage across all 22 tools) and `serverInfo.name` aligned to the MCP
 registry name. Adds status badges to the README.
 
-## [0.2.7] — 2026-07-16
+## [0.2.7] - 2026-07-16
 
 Client-only maintenance release: correctness fixes plus a dead-code and
 duplication sweep. No change to the server wire protocol or tool surface.
@@ -69,6 +69,6 @@ duplication sweep. No change to the server wire protocol or tool surface.
 ## [0.2.6] and earlier
 
 Prior releases tracked raven-nest-mcp server feature parity in lockstep. See the git
-history (`git log`, tag `v0.2.6`) and `PROGRESS.md` (steps 1–48) for the full record.
+history (`git log`, tag `v0.2.6`) and `PROGRESS.md` (steps 1-48) for the full record.
 
 [0.2.7]: https://gitlab.com/tidynest/raven-nest-client/-/compare/v0.2.6...v0.2.7
