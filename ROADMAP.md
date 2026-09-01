@@ -14,7 +14,7 @@ Ordered by impact within each section. Unchecked = not started.
   *Affected crates:* `raven-core` (parsers), `raven-report` (finding store)
 
 - [x] **Target scope management**
-  A `[scope]` config section with allowed CIDRs, domains, and URLs. `validate_target()` already exists — gate it against the scope allowlist before every tool invocation. Critical for professional engagements where out-of-scope scanning has legal consequences.
+  A `[scope]` config section with allowed CIDRs, domains, and URLs. `validate_target()` already exists - gate it against the scope allowlist before every tool invocation. Critical for professional engagements where out-of-scope scanning has legal consequences.
   *Affected crates:* `raven-core` (config, validation)
 
 - [x] **Scan-to-finding linking**
@@ -28,7 +28,7 @@ Ordered by impact within each section. Unchecked = not started.
 ### Medium Priority
 
 - [x] **Additional report formats (SARIF, JSON, HTML)**
-  SARIF for GitHub Security / Defect Dojo / CI pipelines. JSON for programmatic consumption. HTML for standalone shareable reports. The finding data model is already structured enough — mostly serialisation work.
+  SARIF for GitHub Security / Defect Dojo / CI pipelines. JSON for programmatic consumption. HTML for standalone shareable reports. The finding data model is already structured enough - mostly serialisation work.
   *Affected crates:* `raven-report`
 
 - [x] **Finding deduplication**
@@ -85,7 +85,7 @@ Ordered by impact within each section. Unchecked = not started.
 
 - [~] **Scan orchestration / recon workflows**
   A `recon <target>` command that chains: nmap (discover ports) -> whatweb (identify tech on HTTP ports) -> nikto (scan web servers) -> nuclei (check known CVEs). Intelligent filtering between stages (only scan what the previous step discovered). Teaches state machines, dependency graphs, and async orchestration.
-  *Shipped (v1, Step 47):* `src/commands/recon.ts` — nmap `service` scan -> `parseOpenPorts` -> tunable `selectWebPorts` filter -> whatweb per web port. *Still open:* extend the chain to nikto/nuclei, and feed results into auto-findings.
+  *Shipped (v1, Step 47):* `src/commands/recon.ts` - nmap `service` scan -> `parseOpenPorts` -> tunable `selectWebPorts` filter -> whatweb per web port. *Still open:* extend the chain to nikto/nuclei, and feed results into auto-findings.
 
 - [ ] **Web dashboard with Bun.serve()**
   Real-time browser dashboard using Bun's built-in HTTP server + WebSocket. Shows: running scans with live progress, findings summary (severity breakdown chart), scan history timeline, target map. Uses HTML imports (no vite/webpack). Teaches frontend dev, WebSocket, reactive UI.
