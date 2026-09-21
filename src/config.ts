@@ -8,12 +8,12 @@ import { resolve, dirname } from "path";
 //   • a full launch command, e.g.
 //     "docker run --rm -i ghcr.io/tidynest/raven-nest-mcp:latest"
 // (whitespace-separated; a path containing spaces still works as long as the whole
-// string is a real file — see transport.ts. Quoted args inside a command aren't
+// string is a real file - see transport.ts. Quoted args inside a command aren't
 // supported; use a wrapper script if you need them.)
 //
 // Default: a sibling `raven-nest-mcp` checkout's release build, resolved relative
 // to this file so it works regardless of the client's CWD. Override for any other
-// layout — or to drive the published image — with RAVEN_SERVER.
+// layout - or to drive the published image - with RAVEN_SERVER.
 const DEFAULT_SERVER = resolve(
     import.meta.dir, "..", "..", "raven-nest-mcp", "target", "release", "raven-server",
 );

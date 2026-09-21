@@ -1,4 +1,4 @@
-# gitleaks config — extends the default ruleset.
+# gitleaks config - extends the default ruleset.
 #
 # This is a security-tooling repo: its E2E suite drives the server's own
 # gitleaks/trufflehog tools, so test fixtures deliberately contain SYNTHETIC,

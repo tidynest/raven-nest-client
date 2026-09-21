@@ -1,7 +1,7 @@
 // src/commands/recon.ts
 // Deterministic recon workflow: discover open ports with nmap, then run the
 // web-layer tools against whatever HTTP(S) ports nmap found. This is a fixed
-// pipeline the operator triggers with one command — NOT an agentic loop. The
+// pipeline the operator triggers with one command - NOT an agentic loop. The
 // server stays the source of truth for each tool; recon only chains them and
 // filters between stages.
 
@@ -24,13 +24,13 @@ export function parseOpenPorts(nmapText: string): OpenPort[] {
 
 // ── The one decision worth tuning yourself ──────────────────────────────────
 /** Decide which open ports are "web" and worth running HTTP tools against.
- *  This is the interesting business logic of the workflow — there are several
+ *  This is the interesting business logic of the workflow - there are several
  *  valid strategies, so it lives in its own function for you to shape.
  *
  *  Default: trust nmap's service name when it looks like http, OR fall back to
  *  a set of common web ports (covers a quick scan that skips service detection).
  *
- *  TODO(you): tune to your targets. Trade-offs to weigh —
+ *  TODO(you): tune to your targets. Trade-offs to weigh -
  *   - service-only (`p.service.startsWith("http")`): precise with scan_type
  *     "service", but a fast/quick scan reports no service and you'd miss ports;
  *   - port-only: catches bare ports but mislabels a non-web service on :8080;
@@ -59,7 +59,7 @@ export async function handleReconCommand(
         return;
     }
 
-    // Stage 1 — discover ports. scan_type "service" so we get service names
+    // Stage 1 - discover ports. scan_type "service" so we get service names
     // for the filter below.
     console.log(`${c.label}[recon]${c.reset} nmap ${target} (service scan)…`);
     const nmapText = await helpers.callText("run_nmap", { target, scan_type: "service" });
@@ -72,11 +72,11 @@ export async function handleReconCommand(
         `${web.length} look web-facing: ${web.map(p => p.port).join(", ") || "none"}`,
     );
     if (web.length === 0) {
-        console.log(`${c.dim}No web ports to follow up — recon complete.${c.reset}`);
+        console.log(`${c.dim}No web ports to follow up - recon complete.${c.reset}`);
         return;
     }
 
-    // Stage 2 — fingerprint each web port with whatweb. One tool failing must
+    // Stage 2 - fingerprint each web port with whatweb. One tool failing must
     // not abort the rest of the sweep.
     for (const p of web) {
         const url = `${isTls(p) ? "https" : "http"}://${target}:${p.port}`;

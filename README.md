@@ -8,15 +8,15 @@
 TypeScript MCP client for [raven-nest-mcp](https://github.com/tidynest/raven-nest-mcp).
 Speaks JSON-RPC 2.0 over stdio to the Rust MCP server (46 tools). Drives either a
 local `raven-server` build or the published Docker image. **Versioned in lockstep
-with the server** — client and server always share the same version number, so a
+with the server** - client and server always share the same version number, so a
 client `vX.Y.Z` pairs with server `vX.Y.Z`.
 
 ## Requirements
 
 - [Bun](https://bun.sh) v1.3+
-- A `raven-server` to talk to — **either** a local build from
+- A `raven-server` to talk to - **either** a local build from
   [raven-nest-mcp](https://github.com/tidynest/raven-nest-mcp), **or** Docker (to run
-  the published image — no local build needed)
+  the published image - no local build needed)
 
 ## Setup
 
@@ -25,12 +25,12 @@ bun install
 ```
 
 By default the client looks for a sibling `raven-nest-mcp` checkout's release build
-(`../raven-nest-mcp/target/release/raven-server`, resolved relative to the client —
+(`../raven-nest-mcp/target/release/raven-server`, resolved relative to the client -
 not your CWD). For a local binary the server's config is auto-derived from its
 location (`<server-project>/config/default.toml`), so `tool_paths`, `sudo_tools`,
 and Metasploit integration work regardless of where you run the client.
 
-`RAVEN_SERVER` can be a binary path **or a full launch command** — set it (or use a
+`RAVEN_SERVER` can be a binary path **or a full launch command** - set it (or use a
 `.env` file) to point elsewhere, or to run the published Docker image:
 
 ```bash
@@ -38,7 +38,7 @@ and Metasploit integration work regardless of where you run the client.
 RAVEN_SERVER=/path/to/raven-server
 RAVEN_CONFIG=/path/to/config/default.toml          # optional; only for local binaries
 
-# …or the published image (bundles all 22 tools — no local build needed)
+# …or the published image (bundles all 22 tools - no local build needed)
 RAVEN_SERVER="docker run --rm -i ghcr.io/tidynest/raven-nest-mcp:latest"
 ```
 
@@ -47,7 +47,7 @@ skips `RAVEN_CONFIG` injection automatically.
 
 ## Standalone binary (optional)
 
-Bundle the client and the Bun runtime into a single executable — useful for
+Bundle the client and the Bun runtime into a single executable - useful for
 handing the client to a machine without Bun installed:
 
 ```bash
@@ -80,7 +80,7 @@ bun run index.ts --no-color   # disable ANSI colours
 
 ### Quick start
 
-A typical REPL session — connect, scope to an engagement, record a finding, export:
+A typical REPL session - connect, scope to an engagement, record a finding, export:
 
 ```text
 $ bun run index.ts
@@ -115,7 +115,7 @@ raven (acme)> report format=html               # write the report (see path belo
 
 Tab completion is available for tool names (after `call` or `describe`) and command names.
 
-**Engagements** scope findings and reports to a named client or target: `engagement set <name>` switches context, and everything saved afterwards belongs to that engagement (the prompt shows it, e.g. `raven (acme)>`). The active engagement lives in server memory — it resets when the server restarts, and the prompt drops the `(name)` suffix.
+**Engagements** scope findings and reports to a named client or target: `engagement set <name>` switches context, and everything saved afterwards belongs to that engagement (the prompt shows it, e.g. `raven (acme)>`). The active engagement lives in server memory - it resets when the server restarts, and the prompt drops the `(name)` suffix.
 
 ### Server tools (46)
 
@@ -123,7 +123,7 @@ Tab completion is available for tool names (after `call` or `describe`) and comm
 
 **Exploitation:** run_sqlmap, run_hydra, run_feroxbuster, run_ffuf, run_testssl, run_enum4linux_ng, run_john, run_dalfox, run_netexec
 
-**Secrets (2):** run_gitleaks, run_trufflehog — scan a filesystem path (confined to the server's `output_dir`, `/usr/share`, `/usr/lib`); report location + rule id only, never the secret value
+**Secrets (2):** run_gitleaks, run_trufflehog - scan a filesystem path (confined to the server's `output_dir`, `/usr/share`, `/usr/lib`); report location + rule id only, never the secret value
 
 **Metasploit (6):** msf_search, msf_module_info, msf_exploit, msf_auxiliary, msf_sessions, msf_post
 
@@ -138,7 +138,7 @@ Tab completion is available for tool names (after `call` or `describe`) and comm
 Reports are multi-format: `generate_report` defaults to Markdown; pass `format=json|sarif|html` (e.g. `report format=sarif`) for the other formats.
 Files are written under the server's `output_dir` (default `/tmp/raven-nest`), or `{output_dir}/engagements/{name}/` when an engagement is active. The server prints the saved path in its response.
 
-**Scope enforcement:** when the server has an engagement `[scope]` allowlist enabled, every tool — including `http_request` — rejects out-of-scope hosts with an authorization error (MCP `-32600`). The client surfaces the message verbatim and does not retry; treat it as a hard boundary.
+**Scope enforcement:** when the server has an engagement `[scope]` allowlist enabled, every tool - including `http_request` - rejects out-of-scope hosts with an authorization error (MCP `-32600`). The client surfaces the message verbatim and does not retry; treat it as a hard boundary.
 
 ## Tests
 
@@ -146,7 +146,7 @@ Files are written under the server's `output_dir` (default `/tmp/raven-nest`), o
 ```bash
 bun test src/
 ```
-42 tests, 57 assertions — handshake, tool calls, finding CRUD, scan lifecycle, engagement scoping, caching, errors.
+42 tests, 57 assertions - handshake, tool calls, finding CRUD, scan lifecycle, engagement scoping, caching, errors.
 
 **E2E tests** (require Docker targets + server config):
 ```bash
@@ -172,23 +172,23 @@ Metasploit tests require `msfrpcd` running on port 55553.
 
 | File | Purpose |
 |------|---------|
-| `index.ts` | CLI entry point — one-shot commands, REPL with tab completion |
-| `src/config.ts` | Shared config — server binary + config paths (env-overridable) |
-| `src/client/mcp-client.ts` | High-level MCP client — handshake, tool listing/caching, tool calls |
-| `src/client/transport.ts` | Stdio transport — JSON-RPC over stdin/stdout, timeouts, stderr capture, notification dispatch, config env injection |
-| `src/client/helpers.ts` | Typed wrappers — finding CRUD, scan management, engagement scoping, report generation |
+| `index.ts` | CLI entry point - one-shot commands, REPL with tab completion |
+| `src/config.ts` | Shared config - server binary + config paths (env-overridable) |
+| `src/client/mcp-client.ts` | High-level MCP client - handshake, tool listing/caching, tool calls |
+| `src/client/transport.ts` | Stdio transport - JSON-RPC over stdin/stdout, timeouts, stderr capture, notification dispatch, config env injection |
+| `src/client/helpers.ts` | Typed wrappers - finding CRUD, scan management, engagement scoping, report generation |
 | `src/commands/scan.ts` | REPL scan subcommand dispatcher |
 | `src/commands/finding.ts` | REPL finding subcommand dispatcher |
 | `src/commands/engagement.ts` | REPL engagement subcommand dispatcher |
-| `src/commands/recon.ts` | Recon workflow — nmap discovery → whatweb on web ports (deterministic pipeline) |
+| `src/commands/recon.ts` | Recon workflow - nmap discovery → whatweb on web ports (deterministic pipeline) |
 | `src/types/jsonrpc.ts` | JSON-RPC 2.0 types + notification type |
 | `src/types/mcp.ts` | MCP protocol types + logging notification params |
-| `src/types/finding.ts` | `SaveFindingParams` — the save_finding request shape |
+| `src/types/finding.ts` | `SaveFindingParams` - the save_finding request shape |
 | `src/types/scan.ts` | Scan status and parameter types |
-| `src/client/mcp-client.test.ts` | Integration tests — handshake, tools, findings, scans, caching, errors |
-| `src/client/helpers.test.ts` | Helper layer tests — typed finding/scan wrappers |
-| `src/commands/engagement.test.ts` | Engagement command tests — set → active → list round-trip |
-| `tests/e2e/` | E2E tests — 36 tools against Docker targets + filesystem fixtures (6 files, 70 tests) |
+| `src/client/mcp-client.test.ts` | Integration tests - handshake, tools, findings, scans, caching, errors |
+| `src/client/helpers.test.ts` | Helper layer tests - typed finding/scan wrappers |
+| `src/commands/engagement.test.ts` | Engagement command tests - set → active → list round-trip |
+| `tests/e2e/` | E2E tests - 36 tools against Docker targets + filesystem fixtures (6 files, 70 tests) |
 
 See [docs/architecture.md](docs/architecture.md) for the layered architecture and data flow.
 

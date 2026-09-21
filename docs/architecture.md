@@ -97,11 +97,11 @@ REPL prints: [progress] nmap scanning 127.0.0.1... (15s elapsed)
 
 ## Config resolution
 
-The server resolves `config/default.toml` relative to the binary (and its CWD); since the client spawns it, that wouldn't find the server project's config — so for a **local binary** the transport derives `SERVER_CONFIG` from the binary path and injects it, preserving `tool_paths`, `sudo_tools`, and `[metasploit]` config instead of silently falling back to built-in defaults.
+The server resolves `config/default.toml` relative to the binary (and its CWD); since the client spawns it, that wouldn't find the server project's config - so for a **local binary** the transport derives `SERVER_CONFIG` from the binary path and injects it, preserving `tool_paths`, `sudo_tools`, and `[metasploit]` config instead of silently falling back to built-in defaults.
 
 ```
 SERVER_BIN    = <client>/../raven-nest-mcp/target/release/raven-server   (default: sibling checkout, resolved via import.meta.dir)
-SERVER_CONFIG = <server-project>/config/default.toml                     (derived — local binary only)
+SERVER_CONFIG = <server-project>/config/default.toml                     (derived - local binary only)
 StdioTransport.start() passes: env.RAVEN_CONFIG = SERVER_CONFIG
 ```
 
@@ -129,21 +129,21 @@ Design choices:
 |---------|-----------|
 | Request timeouts | `setTimeout` per request, 120s default, cleared on response or stop |
 | Progress-based timeout reset | `resetPendingTimers()` restarts all pending timers when progress notifications arrive |
-| Server stderr | `stderr: "inherit"` — server diagnostics pass straight to the client's terminal; the kernel drains the pipe so a chatty tool can't block |
+| Server stderr | `stderr: "inherit"` - server diagnostics pass straight to the client's terminal; the kernel drains the pipe so a chatty tool can't block |
 | Notification dispatch | Callback registered via `onNotification()`, dispatched with optional chaining |
 | Tool list caching | `cachedTools: T[] \| null` in McpClient, null = not fetched, cleared on disconnect |
 | Config injection | `RAVEN_CONFIG` env var passed to spawned server via `Bun.spawn({ env })` |
 
 ## Test coverage
 
-**Integration tests** — 42 tests across 3 files (`src/`), against the real Rust server:
+**Integration tests** - 42 tests across 3 files (`src/`), against the real Rust server:
 - Handshake and protocol negotiation
 - Tool discovery and caching (cache hit, disconnect clears)
 - Tool invocation (ping, findings CRUD, scan lifecycle, report generation)
 - Error handling (nonexistent tool, missing params, invalid IDs)
 - Typed helper layer (RavenHelpers finding, scan + engagement methods)
 
-**E2E tests** — 70 tests across 6 files (`tests/e2e/`), against Docker targets:
+**E2E tests** - 70 tests across 6 files (`tests/e2e/`), against Docker targets:
 - Pure function tests: tokenize, coerceArgs, parseArgs edge cases, recon port parsing + web-port filter
 - REPL code paths: call with coerceArgs, quoted multi-word values, NaN validation, error recovery
 - 36 server tools exercised against Juice Shop (port 3000), bWAPP (port 80), and local filesystem fixtures
@@ -155,10 +155,10 @@ Design choices:
 
 ## Releasing & badges
 
-The README status badges are self-hosted SVGs under `badges/`, not shields.io URLs — GitHub serves repo files first-party, so they never break on its Camo image proxy. They are generated, never hand-edited.
+The README status badges are self-hosted SVGs under `badges/`, not shields.io URLs - GitHub serves repo files first-party, so they never break on its Camo image proxy. They are generated, never hand-edited.
 
 `scripts/gen-badges.ts` is the single source of truth: the release badge reads `package.json` `version`, the tool-count badge reads `TOOL_COUNT` in that script, and segment widths are computed so no SVG geometry is edited by hand.
 
-- **Cut a release:** `npm version <patch|minor|major>` (lockstep with the server — see the version note in the README). The `version` lifecycle script regenerates the badges and stages them into the version commit automatically.
+- **Cut a release:** `npm version <patch|minor|major>` (lockstep with the server - see the version note in the README). The `version` lifecycle script regenerates the badges and stages them into the version commit automatically.
 - **Change the tool count:** edit `TOOL_COUNT` in `scripts/gen-badges.ts`, then `bun run badges`.
 - **Regenerate on demand:** `bun run badges`.

@@ -4,7 +4,7 @@
 // timing out against shields.io and rendering the badges broken. Repo-relative
 // SVGs are served first-party by GitHub, so they can't break. This generator is
 // the single source of truth: the release badge tracks package.json, and the
-// tool-count badge tracks TOOL_COUNT below — nobody hand-edits SVG geometry.
+// tool-count badge tracks TOOL_COUNT below - nobody hand-edits SVG geometry.
 //
 // Run: `bun run badges`. Also runs automatically on `npm version`.
 
