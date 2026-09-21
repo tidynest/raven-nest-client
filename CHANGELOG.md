@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions track the raven-nest-mcp server's feature line; client-only fixes bump the patch.
 
+## [0.4.1] - 2026-09-21
+
+Lockstep release tracking raven-nest-mcp 0.4.1. No client-side changes:
+the server migrated rmcp from the exact 1.7.0 pin to 2.2.0, clearing
+three rmcp advisories (GHSA-9pj6-vhgr-3mwh, GHSA-33f5-2c5q-wgwj,
+GHSA-9g45-5xwm-f3wc), none reachable in a stdio build. The server also
+stopped advertising MCP logging (deprecated by SEP-2577); its in-flight
+ticker now sends progress notifications when the client supplies a
+`progressToken`. The client relies on neither. Tool count unchanged at 46.
+
 ## [0.4.0] - 2026-09-21
 
 Lockstep release tracking raven-nest-mcp 0.4.0. No client-side changes needed:
