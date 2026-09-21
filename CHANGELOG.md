@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions track the raven-nest-mcp server's feature line; client-only fixes bump the patch.
 
+## [0.4.0] - 2026-09-21
+
+Lockstep release tracking raven-nest-mcp 0.4.0. No client-side changes needed:
+tools are discovered dynamically via `tools/list` and the client reads the text
+output the server already returns.
+
+Server-side additions: background scan persistence (terminal scans survive a
+server restart) and per-target rate limiting (`per_target_min_gap_ms`).
+Dependency fixes: `rmcp` pinned to 1.7.0 after a broken 2.0.0 bump, and `rustls`
+bumped to 0.23.45 to clear RUSTSEC-2026-0285. Tool count unchanged at 46.
+
 ## [0.3.0] - 2026-08-31
 
 Lockstep release tracking raven-nest-mcp 0.3.0. No client-side changes needed:
