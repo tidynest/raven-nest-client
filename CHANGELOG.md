@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions track the raven-nest-mcp server's feature line; client-only fixes bump the patch.
 
+## [0.4.2] - 2026-11-03
+
+Lockstep release tracking raven-nest-mcp 0.4.2. No client-side changes:
+the server release only updates its lockfile, clearing twelve RustSec
+advisories in quinn-proto, rustls, rustls-webpki, webpki-root-certs and
+tokio. Tool count unchanged at 46.
+
 ## [0.4.1] - 2026-09-21
 
 Lockstep release tracking raven-nest-mcp 0.4.1. No client-side changes:
