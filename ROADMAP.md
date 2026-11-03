@@ -35,15 +35,15 @@ Ordered by impact within each section. Unchecked = not started.
   Detect when a finding with the same title + target + tool already exists. Warn or merge instead of creating duplicates. Keeps reports clean during iterative scanning.
   *Affected crates:* `raven-report` (store)
 
-- [ ] **Target discovery tracking**
+- [x] **Target discovery tracking**
   Persist discovered hosts, ports, services, and technologies across scans. When nmap finds port 80 open and whatweb identifies Apache, store that as structured target metadata. Enables "what do we know about 192.168.1.100?" queries.
   *New crate or extend:* `raven-core`
 
-- [ ] **Scan diffing**
+- [x] **Scan diffing**
   Compare two scans of the same target to find what changed (new ports, removed services, new vulns). Useful for re-testing after remediation or monitoring over time.
   *Affected crates:* `raven-core` (scan manager)
 
-- [ ] **Background scan persistence**
+- [x] **Background scan persistence**
   Scans are lost on server restart. Serialize running scan state to disk so they can be recovered (or at least their partial output preserved).
   *Affected crates:* `raven-core` (scan manager)
 
@@ -73,7 +73,7 @@ Ordered by impact within each section. Unchecked = not started.
   Push findings to Defect Dojo, Jira, GitHub Issues, or GitLab Issues via their APIs. Enables integration into existing remediation workflows.
   *Affected crates:* new crate or `raven-report`
 
-- [ ] **Rate limiting per target**
+- [x] **Rate limiting per target**
   Cap requests/second to individual targets to avoid triggering WAFs or crashing fragile services. Currently only masscan has a rate limit. Extend to HTTP-based tools.
   *Affected crates:* `raven-core`
 
@@ -146,8 +146,8 @@ Ordered by impact within each section. Unchecked = not started.
 - [x] **Engagement sync between client and server**
   Client creates/switches engagements (`engagement set`/`engagements`), server scopes its findings store accordingly. Shipped via `set_engagement`/`list_engagements`.
 
-- [ ] **Structured scan results**
-  Server returns parsed results as JSON (not just text) alongside the human-readable output. Client can then filter, sort, and correlate without re-parsing text. Major protocol change.
+- [x] **Structured scan results**
+  Server returns parsed results as JSON (not just text) alongside the human-readable output. Client can then filter, sort, and correlate without re-parsing text. Major protocol change. Server side shipped for nmap and nuclei via `structured_content`; the client does not filter or sort on it yet.
 
 - [ ] **CI/CD integration mode**
   `bun run index.ts ci --targets targets.txt --workflow recon --format sarif --fail-on critical` for pipeline use. Non-interactive, exits with code 1 if critical findings found. Combines multi-target, orchestration, and SARIF export.
