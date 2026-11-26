@@ -17,6 +17,11 @@ Versions track the raven-nest-mcp server's feature line; client-only fixes bump 
   sends a token with every call and the handler reads `params.message`.
   Covered by `src/client/progress.test.ts`, which runs against a scripted
   server and needs no Rust build.
+- Two integration tests match the current server again. The handshake test
+  expects the registry name, `io.github.tidynest/raven-nest-mcp`. The
+  missing-parameter test expects a tool error with `isError: true`, which is
+  how the server has reported a malformed argument since its move to rmcp
+  2.x, where the test still waited for a thrown JSON-RPC error.
 
 ## [0.4.2] - 2026-11-03
 
