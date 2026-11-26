@@ -20,7 +20,7 @@ describe("McpClient", () => {
 
         // Verify the server returned expected protocol metadata
         expect(handshake.protocolVersion).toBe("2025-03-26");
-        expect(handshake.serverInfo.name).toBe("raven-nest");
+        expect(handshake.serverInfo.name).toBe("io.github.tidynest/raven-nest-mcp");
         // Server sets its own server_info in get_info(), so this tracks the
         // raven-nest product version, not the rmcp SDK crate. Match the semver
         // shape rather than a pinned number so version bumps don't break it.
@@ -318,13 +318,12 @@ describe("Error handling", () => {
     });
 
     test("rejects missing required params", async () => {
-        // ping_target requires a "target" param - omitting it should throw
-        try {
-            await client.callTool("ping_target", {});
-            expect().fail("should have thrown");
-        } catch (err) {
-            expect((err as Error).message).toContain("missing field");
-        }
+        // ping_target requires a "target" param. Since the server moved to
+        // rmcp 2.x a malformed argument comes back as a tool error the caller
+        // can read (isError), not as a JSON-RPC error, so nothing is thrown.
+        const result = await client.callTool("ping_target", {});
+        expect(result.isError).toBe(true);
+        expect(result.content[0]!.text).toContain("missing field");
     });
 
     test("handles get_finding with invalid ID gracefully", async () => {

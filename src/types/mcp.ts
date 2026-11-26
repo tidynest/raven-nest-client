@@ -1,7 +1,7 @@
 // src/types/mcp.ts
 // MCP (Model Context Protocol) types - methods and structures that sit
-// on top of JSON-RPC. These define the handshake, tool discovery, tool
-// invocation, and logging notification shapes used by the raven-nest server.
+// on top of JSON-RPC. These define the handshake, tool discovery, and tool
+// invocation shapes used by the raven-nest server.
 
 /** Server capabilities returned during the MCP handshake.
  *  Tells the client what features the server supports. */

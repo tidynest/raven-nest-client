@@ -6,12 +6,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions track the raven-nest-mcp server's feature line; client-only fixes bump the patch.
 
-## [0.4.2] - 2026-11-03
+## [0.4.2] - 2026-11-26
 
-Lockstep release tracking raven-nest-mcp 0.4.2. No client-side changes:
-the server release only updates its lockfile, clearing twelve RustSec
-advisories in quinn-proto, rustls, rustls-webpki, webpki-root-certs and
-tokio. Tool count unchanged at 46.
+Tracks raven-nest-mcp 0.4.2, which clears RustSec advisories, moves to
+rmcp 3.11.0 and replaces chrono. Tool count unchanged at 46.
+
+### Fixed
+- Progress output works again. The server stopped sending
+  `notifications/message` in 0.4.1 and now sends `notifications/progress`,
+  and only for a call that carries a `progressToken`. The client sent no
+  token and listened for the old method, so `[progress]` lines never printed
+  and a scan longer than the request timeout was cut off. `callTool` now
+  sends a token with every call and the handler reads `params.message`.
+  Covered by `src/client/progress.test.ts`, which runs against a scripted
+  server and needs no Rust build.
+- Two integration tests match the current server again. The handshake test
+  expects the registry name, `io.github.tidynest/raven-nest-mcp`. The
+  missing-parameter test expects a tool error with `isError: true`, which is
+  how the server has reported a malformed argument since its move to rmcp
+  2.x, where the test still waited for a thrown JSON-RPC error.
+
+### Changed
+- README: the tool list names all 46 tools, the E2E instructions use a
+  container name that is not specific to one machine, and the file table no
+  longer lists `src/types/scan.ts`, which was removed earlier.
 
 ## [0.4.1] - 2026-09-21
 

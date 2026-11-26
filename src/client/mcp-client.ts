@@ -30,6 +30,10 @@ export class McpClient {
     // Optional callback invoked when the server sends progress notifications
     private onProgress?:    (message: string) => void;
 
+    // Source of progress tokens - one per tool call, so each is unique among
+    // the requests in flight, which is all the protocol asks of a token
+    private progressSeq     = 0;
+
     /** Creates a new MCP client targeting the given server binary.
      *  Optionally accepts a progress callback for long-running tool updates.
      *  Optional timeout (ms) overrides the default 120s per-request deadline. */
@@ -52,9 +56,9 @@ export class McpClient {
         // Also resets pending request timers so long-running tools
         // don't timeout while actively reporting progress.
         this.transport.onNotification((method, params) => {
-            if (method === "notifications/message" && params?.data) {
+            if (method === "notifications/progress" && params?.message) {
                 this.transport.resetPendingTimers();
-                this.onProgress?.(String(params.data));
+                this.onProgress?.(String(params.message));
             }
         });
 
@@ -96,11 +100,15 @@ export class McpClient {
     }
 
     /** Invoke a server tool by name.
-     *  `args` maps directly to the tool's inputSchema properties. */
+     *  `args` maps directly to the tool's inputSchema properties.
+     *  Every call carries a progressToken: the server reports progress only
+     *  for a request that asks for it, and those reports are what keep a
+     *  long scan from hitting the request timeout. */
     async callTool(name: string, args?: Record<string, unknown>): Promise<ToolCallResult> {
         const response = await this.transport.request("tools/call", {
             name,
             arguments: args ?? {},
+            _meta: { progressToken: ++this.progressSeq },
         });
         return this.unwrap<ToolCallResult>(response);
     }
