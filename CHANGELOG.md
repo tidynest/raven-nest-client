@@ -23,6 +23,11 @@ Versions track the raven-nest-mcp server's feature line; client-only fixes bump 
   how the server has reported a malformed argument since its move to rmcp
   2.x, where the test still waited for a thrown JSON-RPC error.
 
+### Changed
+- README: the tool list names all 46 tools, the E2E instructions use a
+  container name that is not specific to one machine, and the file table no
+  longer lists `src/types/scan.ts`, which was removed earlier.
+
 ## [0.4.2] - 2026-11-03
 
 Lockstep release tracking raven-nest-mcp 0.4.2. No client-side changes:

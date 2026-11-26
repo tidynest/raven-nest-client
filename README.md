@@ -135,6 +135,8 @@ Tab completion is available for tool names (after `call` or `describe`) and comm
 
 **Engagement (2):** set_engagement, list_engagements
 
+**Discovery tracking (3):** get_target_info, list_targets, diff_scans
+
 Reports are multi-format: `generate_report` defaults to Markdown; pass `format=json|sarif|html` (e.g. `report format=sarif`) for the other formats.
 Files are written under the server's `output_dir` (default `/tmp/raven-nest`), or `{output_dir}/engagements/{name}/` when an engagement is active. The server prints the saved path in its response.
 
@@ -146,12 +148,12 @@ Files are written under the server's `output_dir` (default `/tmp/raven-nest`), o
 ```bash
 bun test src/
 ```
-42 tests, 57 assertions - handshake, tool calls, finding CRUD, scan lifecycle, engagement scoping, caching, errors.
+43 tests, 59 assertions - handshake, tool calls, finding CRUD, scan lifecycle, engagement scoping, caching, errors, progress.
 
 **E2E tests** (require Docker targets + server config):
 ```bash
 # Start targets
-docker start juice-shop infallible_satoshi
+docker start juice-shop bwapp
 
 # Run individual phases (execution order matters)
 bun test tests/e2e/phase1-pure.test.ts                # pure functions, no server
@@ -162,7 +164,7 @@ bun test tests/e2e/phase3b-remaining-tools.test.ts    # all other tools + secret
 bun test tests/e2e/phase4-progress.test.ts            # progress/stderr separation
 
 # Stop targets
-docker stop juice-shop infallible_satoshi
+docker stop juice-shop bwapp
 ```
 
 70 E2E tests covering 36 of the server tools against Juice Shop (port 3000) and bWAPP (port 80), plus local filesystem fixtures for the secret scanners (gitleaks, trufflehog) and pure-function tests for the recon parser, tokenizer, and arg coercion.
@@ -175,19 +177,19 @@ Metasploit tests require `msfrpcd` running on port 55553.
 | `index.ts` | CLI entry point - one-shot commands, REPL with tab completion |
 | `src/config.ts` | Shared config - server binary + config paths (env-overridable) |
 | `src/client/mcp-client.ts` | High-level MCP client - handshake, tool listing/caching, tool calls |
-| `src/client/transport.ts` | Stdio transport - JSON-RPC over stdin/stdout, timeouts, stderr capture, notification dispatch, config env injection |
+| `src/client/transport.ts` | Stdio transport - JSON-RPC over stdin/stdout, timeouts, notification dispatch, config env injection |
 | `src/client/helpers.ts` | Typed wrappers - finding CRUD, scan management, engagement scoping, report generation |
 | `src/commands/scan.ts` | REPL scan subcommand dispatcher |
 | `src/commands/finding.ts` | REPL finding subcommand dispatcher |
 | `src/commands/engagement.ts` | REPL engagement subcommand dispatcher |
 | `src/commands/recon.ts` | Recon workflow - nmap discovery → whatweb on web ports (deterministic pipeline) |
 | `src/types/jsonrpc.ts` | JSON-RPC 2.0 types + notification type |
-| `src/types/mcp.ts` | MCP protocol types + logging notification params |
+| `src/types/mcp.ts` | MCP protocol types |
 | `src/types/finding.ts` | `SaveFindingParams` - the save_finding request shape |
-| `src/types/scan.ts` | Scan status and parameter types |
 | `src/client/mcp-client.test.ts` | Integration tests - handshake, tools, findings, scans, caching, errors |
 | `src/client/helpers.test.ts` | Helper layer tests - typed finding/scan wrappers |
 | `src/commands/engagement.test.ts` | Engagement command tests - set → active → list round-trip |
+| `src/client/progress.test.ts` | Progress contract - token sent, `notifications/progress` received, against `tests/fixtures/progress-server.ts` |
 | `tests/e2e/` | E2E tests - 36 tools against Docker targets + filesystem fixtures (6 files, 70 tests) |
 
 See [docs/architecture.md](docs/architecture.md) for the layered architecture and data flow.
