@@ -58,7 +58,7 @@ export type JsonRpcResponse = JsonRpcSuccessResponse | JsonRpcErrorResponse;
 export interface JsonRpcNotification {
     /** Protocol version - always "2.0" */
     jsonrpc: typeof JSONRPC_VERSION;
-    /** Notification type (e.g. "notifications/message" for progress ticks) */
+    /** Notification type (e.g. "notifications/progress" for progress ticks) */
     method:  string;
     /** Optional payload for the notification */
     params?: Record<string, unknown>;

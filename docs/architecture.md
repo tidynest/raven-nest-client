@@ -76,10 +76,10 @@ REPL prints result.content[0].text + elapsed time
 
 ## Data flow: progress notification
 
-While a long-running tool executes (nmap, nikto, etc.), the server's ProgressTicker sends periodic notifications:
+While a long-running tool executes (nmap, nikto, etc.), the server's ProgressTicker sends periodic notifications. It does so only for a call that carried a `progressToken`, so `callTool` puts one in `_meta` on every request:
 
 ```
-Server -> stdout: {"jsonrpc":"2.0","method":"notifications/message","params":{"level":"info","data":"nmap scanning 127.0.0.1... (15s elapsed)"}}
+Server -> stdout: {"jsonrpc":"2.0","method":"notifications/progress","params":{"progressToken":1,"progress":15,"message":"nmap scanning 127.0.0.1... (15s elapsed)"}}
      |
      v
 readLoop() parses JSON, sees no "id" field
@@ -87,8 +87,8 @@ readLoop() parses JSON, sees no "id" field
      |
      v
 McpClient notification handler
-  -> checks method === "notifications/message"
-  -> extracts params.data as string
+  -> checks method === "notifications/progress"
+  -> extracts params.message as string
   -> calls onProgress callback
      |
      v
@@ -136,7 +136,7 @@ Design choices:
 
 ## Test coverage
 
-**Integration tests** - 42 tests across 3 files (`src/`), against the real Rust server:
+**Integration tests** - 43 tests across 4 files (`src/`). 42 run against the real Rust server; the progress contract test runs against a scripted stdio server in `tests/fixtures/`:
 - Handshake and protocol negotiation
 - Tool discovery and caching (cache hit, disconnect clears)
 - Tool invocation (ping, findings CRUD, scan lifecycle, report generation)

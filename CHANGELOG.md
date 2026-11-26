@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions track the raven-nest-mcp server's feature line; client-only fixes bump the patch.
 
+## [Unreleased]
+
+### Fixed
+- Progress output works again. The server stopped sending
+  `notifications/message` in 0.4.1 and now sends `notifications/progress`,
+  and only for a call that carries a `progressToken`. The client sent no
+  token and listened for the old method, so `[progress]` lines never printed
+  and a scan longer than the request timeout was cut off. `callTool` now
+  sends a token with every call and the handler reads `params.message`.
+  Covered by `src/client/progress.test.ts`, which runs against a scripted
+  server and needs no Rust build.
+
 ## [0.4.2] - 2026-11-03
 
 Lockstep release tracking raven-nest-mcp 0.4.2. No client-side changes:

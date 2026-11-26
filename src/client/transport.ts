@@ -168,7 +168,7 @@ export class StdioTransport {
     }
 
     /** Register a callback for server-initiated notifications.
-     *  The server sends progress updates via "notifications/message"
+     *  The server sends progress updates via "notifications/progress"
      *  during long-running tool executions. */
     onNotification(handler: (method: string, params?: Record<string, unknown>) => void):
         void {
