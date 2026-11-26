@@ -6,7 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions track the raven-nest-mcp server's feature line; client-only fixes bump the patch.
 
-## [Unreleased]
+## [0.4.2] - 2026-11-26
+
+Tracks raven-nest-mcp 0.4.2, which clears RustSec advisories, moves to
+rmcp 3.11.0 and replaces chrono. Tool count unchanged at 46.
 
 ### Fixed
 - Progress output works again. The server stopped sending
@@ -27,13 +30,6 @@ Versions track the raven-nest-mcp server's feature line; client-only fixes bump 
 - README: the tool list names all 46 tools, the E2E instructions use a
   container name that is not specific to one machine, and the file table no
   longer lists `src/types/scan.ts`, which was removed earlier.
-
-## [0.4.2] - 2026-11-03
-
-Lockstep release tracking raven-nest-mcp 0.4.2. No client-side changes:
-the server release only updates its lockfile, clearing twelve RustSec
-advisories in quinn-proto, rustls, rustls-webpki, webpki-root-certs and
-tokio. Tool count unchanged at 46.
 
 ## [0.4.1] - 2026-09-21
 
