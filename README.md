@@ -24,14 +24,32 @@ client `vX.Y.Z` pairs with server `vX.Y.Z`.
 bun install
 ```
 
-By default the client looks for a sibling `raven-nest-mcp` checkout's release build
-(`../raven-nest-mcp/target/release/raven-server`, resolved relative to the client -
-not your CWD). For a local binary the server's config is auto-derived from its
-location (`<server-project>/config/default.toml`), so `tool_paths`, `sudo_tools`,
-and Metasploit integration work regardless of where you run the client.
+**Where the client finds the server:**
+By default it looks for a release build in a sibling `raven-nest-mcp` checkout,
+at `../raven-nest-mcp/target/release/raven-server`. The path is resolved
+relative to the client, not to your working directory.
 
-`RAVEN_SERVER` can be a binary path **or a full launch command** - set it (or use a
-`.env` file) to point elsewhere, or to run the published Docker image:
+If your Rust builds go somewhere else, for example through `CARGO_TARGET_DIR`,
+that file ***will not be there***. Set `RAVEN_SERVER` to the real path.
+
+**Which config the server gets:**
+For a local binary the client guesses the server project's config,
+`<server-project>/config/default.toml`, from the binary's location. It passes
+that to the server as `RAVEN_CONFIG`, so these work wherever you run the
+client:
+- `tool_paths`,
+- `sudo_tools`,
+- the Metasploit settings.
+
+The guess is passed on ***only when that file exists***. Otherwise the client
+passes nothing and the server looks for its config itself. That lookup is
+described in the server's
+[INSTALL.md](https://github.com/tidynest/raven-nest-mcp/blob/main/docs/INSTALL.md#where-the-config-comes-from).
+
+**Pointing elsewhere:**
+`RAVEN_SERVER` can be a binary path **or a full launch command**. Set it in
+your shell or in a `.env` file, to point at another build or to run the
+published Docker image:
 
 ```bash
 # a local binary in another location
@@ -42,8 +60,14 @@ RAVEN_CONFIG=/path/to/config/default.toml          # optional; only for local bi
 RAVEN_SERVER="docker run --rm -i ghcr.io/tidynest/raven-nest-mcp:latest"
 ```
 
-With the Docker command the server uses the config baked into the image; the client
-skips `RAVEN_CONFIG` injection automatically.
+With the Docker command the client ***never passes `RAVEN_CONFIG`***, because
+a host path means nothing inside the container.
+
+The image carries no config file in a place the server looks, so the server
+starts on its built-in defaults, with the engagement scope off. To use your
+own config, mount it into the container and name it there. The server's
+[INSTALL.md](https://github.com/tidynest/raven-nest-mcp/blob/main/docs/INSTALL.md#container-image)
+shows how.
 
 ## Standalone binary (optional)
 

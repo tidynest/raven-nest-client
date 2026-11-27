@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions track the raven-nest-mcp server's feature line; client-only fixes bump the patch.
 
+## [Unreleased]
+
+### Fixed
+- The client no longer hands the server a `RAVEN_CONFIG` that points at a
+  missing file. For a local binary it guesses the server project's
+  `config/default.toml` from the binary path, and it used to pass that guess
+  on without checking. Servers after 0.4.2 refuse to start on a `RAVEN_CONFIG`
+  that names a missing file, so a binary outside a checkout, or one built to
+  a shared `CARGO_TARGET_DIR`, would not have started. The guess is now
+  passed only when the file exists. An explicit `RAVEN_CONFIG` is passed on
+  as before. Covered by `src/config.test.ts`.
+
+### Documentation
+- The README and `docs/architecture.md` said the Docker image uses a config
+  baked into it. The image has no config where the server looks, so it runs
+  on built-in defaults. Both now say so, and describe the server's config
+  lookup order.
+
 ## [0.4.2] - 2026-11-26
 
 Tracks raven-nest-mcp 0.4.2, which clears RustSec advisories, moves to

@@ -1,6 +1,7 @@
 // src/config.ts
 // Shared configuration constants used by both the CLI and test suites.
 
+import { existsSync } from "node:fs";
 import { resolve, dirname } from "path";
 
 // How to launch the MCP server. RAVEN_SERVER may be either:
@@ -19,13 +20,27 @@ const DEFAULT_SERVER = resolve(
 );
 export const SERVER_BIN = process.env.RAVEN_SERVER ?? DEFAULT_SERVER;
 
-// Server config path. Only meaningful when the server is a local binary: derived
-// from the binary location (<server-project>/config/default.toml) so the server
-// picks up tool_paths/sudo_tools/Metasploit regardless of CWD. For a wrapper
-// command (e.g. docker) the server resolves its own config inside the container,
-// so this stays undefined. Override with RAVEN_CONFIG.
-const looksLikePath = !SERVER_BIN.includes(" ") && SERVER_BIN.includes("/");
-export const SERVER_CONFIG: string | undefined = process.env.RAVEN_CONFIG
-    ?? (looksLikePath
-        ? resolve(dirname(SERVER_BIN), "..", "..", "config", "default.toml")
-        : undefined);
+// Work out which config path, if any, to hand the server as RAVEN_CONFIG.
+//
+// An explicit RAVEN_CONFIG always wins and is passed on unchecked, so the
+// server reports a wrong path itself. Otherwise, for a local binary, guess
+// <server-project>/config/default.toml from the binary location, so the server
+// picks up tool_paths, sudo_tools and Metasploit settings regardless of CWD.
+//
+// The guess is used only when that file exists. Servers after 0.4.2 refuse to
+// start on a RAVEN_CONFIG that names a missing file, so a wrong guess would
+// stop them. With no guess the server runs its own lookup. A wrapper command
+// such as docker never gets a guess, because the path would be a host path.
+export function resolveServerConfig(
+    serverBin: string,
+    explicit: string | undefined,
+    exists: (path: string) => boolean = existsSync,
+): string | undefined {
+    if (explicit !== undefined) return explicit;
+    const looksLikePath = !serverBin.includes(" ") && serverBin.includes("/");
+    if (!looksLikePath) return undefined;
+    const guess = resolve(dirname(serverBin), "..", "..", "config", "default.toml");
+    return exists(guess) ? guess : undefined;
+}
+
+export const SERVER_CONFIG = resolveServerConfig(SERVER_BIN, process.env.RAVEN_CONFIG);
