@@ -12,8 +12,9 @@ test("tool-count badge tracks the given count", () => {
 test("total width equals label + message segments", () => {
     const svg = badge("MCP tools", "43", "#8a2be2");
     const total = Number(svg.match(/width="(\d+)" height="20" role/)![1]);
-    const [lw, mw] = [...svg.matchAll(/<rect (?:x="\d+" )?width="(\d+)" height="20"/g)].map((m) => Number(m[1]));
-    expect(total).toBe(lw + mw);
+    const segments = [...svg.matchAll(/<rect (?:x="\d+" )?width="(\d+)" height="20"/g)].map((m) => Number(m[1]));
+    expect(segments).toHaveLength(2);
+    expect(total).toBe(segments.reduce((sum, width) => sum + width, 0));
 });
 
 test("special chars are XML-escaped", () => {
