@@ -160,14 +160,14 @@ Design choices:
 
 ## Test coverage
 
-**Integration tests** - 43 tests across 4 files (`src/`). 42 run against the real Rust server; the progress contract test runs against a scripted stdio server in `tests/fixtures/`:
+**Integration tests** - in `src/`. Most run against the real Rust server; the progress contract test runs against a scripted stdio server in `tests/fixtures/`:
 - Handshake and protocol negotiation
 - Tool discovery and caching (cache hit, disconnect clears)
 - Tool invocation (ping, findings CRUD, scan lifecycle, report generation)
 - Error handling (nonexistent tool, missing params, invalid IDs)
 - Typed helper layer (RavenHelpers finding, scan + engagement methods)
 
-**E2E tests** - 70 tests across 6 files (`tests/e2e/`), against Docker targets:
+**E2E tests** - 6 files in `tests/e2e/`, against Docker targets:
 - Pure function tests: tokenize, coerceArgs, parseArgs edge cases, recon port parsing + web-port filter
 - REPL code paths: call with coerceArgs, quoted multi-word values, NaN validation, error recovery
 - 36 server tools exercised against Juice Shop (port 3000), bWAPP (port 80), and local filesystem fixtures

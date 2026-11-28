@@ -172,7 +172,7 @@ Files are written under the server's `output_dir` (default `/tmp/raven-nest`), o
 ```bash
 bun test src/
 ```
-43 tests, 59 assertions - handshake, tool calls, finding CRUD, scan lifecycle, engagement scoping, caching, errors, progress.
+They cover the handshake, tool calls, finding CRUD, the scan lifecycle, engagement scoping, caching, errors, progress and the config the client hands the server.
 
 **E2E tests** (require Docker targets + server config):
 ```bash
@@ -191,7 +191,7 @@ bun test tests/e2e/phase4-progress.test.ts            # progress/stderr separati
 docker stop juice-shop bwapp
 ```
 
-70 E2E tests covering 36 of the server tools against Juice Shop (port 3000) and bWAPP (port 80), plus local filesystem fixtures for the secret scanners (gitleaks, trufflehog) and pure-function tests for the recon parser, tokenizer, and arg coercion.
+The end-to-end tests cover 36 of the server tools against Juice Shop (port 3000) and bWAPP (port 80), plus local filesystem fixtures for the secret scanners (gitleaks, trufflehog) and pure-function tests for the recon parser, tokenizer, and arg coercion.
 Metasploit tests require `msfrpcd` running on port 55553.
 
 ## Project structure
@@ -214,7 +214,7 @@ Metasploit tests require `msfrpcd` running on port 55553.
 | `src/client/helpers.test.ts` | Helper layer tests - typed finding/scan wrappers |
 | `src/commands/engagement.test.ts` | Engagement command tests - set → active → list round-trip |
 | `src/client/progress.test.ts` | Progress contract - token sent, `notifications/progress` received, against `tests/fixtures/progress-server.ts` |
-| `tests/e2e/` | E2E tests - 36 tools against Docker targets + filesystem fixtures (6 files, 70 tests) |
+| `tests/e2e/` | E2E tests - 36 tools against Docker targets + filesystem fixtures (6 files) |
 
 See [docs/architecture.md](docs/architecture.md) for the layered architecture and data flow.
 

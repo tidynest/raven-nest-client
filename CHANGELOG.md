@@ -17,12 +17,17 @@ Versions track the raven-nest-mcp server's feature line; client-only fixes bump 
   a shared `CARGO_TARGET_DIR`, would not have started. The guess is now
   passed only when the file exists. An explicit `RAVEN_CONFIG` is passed on
   as before. Covered by `src/config.test.ts`.
+- `bunx tsc --noEmit` passes again. `scripts/gen-badges.test.ts` read two
+  array elements that the compiler could not prove were there. The test now
+  checks that the badge has exactly two segments before adding them up.
 
 ### Documentation
 - The README and `docs/architecture.md` said the Docker image uses a config
   baked into it. The image has no config where the server looks, so it runs
   on built-in defaults. Both now say so, and describe the server's config
   lookup order.
+- The README and `docs/architecture.md` no longer state exact test counts.
+  They went out of date with every test added.
 
 ## [0.4.2] - 2026-11-26
 
