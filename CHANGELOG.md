@@ -8,6 +8,11 @@ Versions track the raven-nest-mcp server's feature line; client-only fixes bump 
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-11-28
+
+Tracks raven-nest-mcp 0.4.3, which refuses to start on a config path that
+does not exist. The client no longer passes it one. Tool count unchanged at 46.
+
 ### Fixed
 - The client no longer hands the server a `RAVEN_CONFIG` that points at a
   missing file. For a local binary it guesses the server project's
