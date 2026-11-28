@@ -97,15 +97,39 @@ REPL prints: [progress] nmap scanning 127.0.0.1... (15s elapsed)
 
 ## Config resolution
 
-The server resolves `config/default.toml` relative to the binary (and its CWD); since the client spawns it, that wouldn't find the server project's config - so for a **local binary** the transport derives `SERVER_CONFIG` from the binary path and injects it, preserving `tool_paths`, `sudo_tools`, and `[metasploit]` config instead of silently falling back to built-in defaults.
+The server looks for its config in a fixed order:
+1. the file named in `RAVEN_CONFIG`,
+2. `~/.config/raven-nest/config.toml`,
+3. `/etc/raven-nest/config.toml`,
+4. `config/default.toml` near the binary,
+5. `config/default.toml` in its working directory,
+6. its built-in defaults.
+
+Steps 2 and 3 exist in servers after 0.4.2.
+
+The client spawns the server from its own working directory, so step 5 does
+not find the server project's config. For a **local binary**,
+`resolveServerConfig` in `src/config.ts` therefore guesses that file from the
+binary path, and the transport injects it as `RAVEN_CONFIG`. That keeps
+`tool_paths`, `sudo_tools` and the `[metasploit]` settings.
 
 ```
 SERVER_BIN    = <client>/../raven-nest-mcp/target/release/raven-server   (default: sibling checkout, resolved via import.meta.dir)
-SERVER_CONFIG = <server-project>/config/default.toml                     (derived - local binary only)
-StdioTransport.start() passes: env.RAVEN_CONFIG = SERVER_CONFIG
+SERVER_CONFIG = <server-project>/config/default.toml                     (guessed - local binary only, and only if the file exists)
+StdioTransport.start() passes: env.RAVEN_CONFIG = SERVER_CONFIG          (skipped when SERVER_CONFIG is undefined)
 ```
 
-If `RAVEN_SERVER` is a launch command instead (e.g. `docker run --rm -i ghcr.io/tidynest/raven-nest-mcp:latest`), the transport splits it into argv and spawns it directly; `SERVER_CONFIG` stays undefined and the server uses the config baked into the image. Override either via env for non-standard layouts.
+**Why the guess must exist:**
+Servers after 0.4.2 ***refuse to start*** on a `RAVEN_CONFIG` that names a
+missing file. Earlier servers skipped it with a warning. A binary outside a
+checkout, such as `/opt/raven/raven-server` or a shared `CARGO_TARGET_DIR`,
+makes the guess point at nothing, so the client passes no `RAVEN_CONFIG` there
+and lets the server run its own lookup.
+
+An explicit `RAVEN_CONFIG` in the client's environment is passed on unchecked.
+A wrong path there is the user's to fix, and the server says so.
+
+If `RAVEN_SERVER` is a launch command instead (e.g. `docker run --rm -i ghcr.io/tidynest/raven-nest-mcp:latest`), the transport splits it into argv and spawns it directly; `SERVER_CONFIG` stays undefined. The image carries no config file in a place the server looks, so the server starts on its built-in defaults unless a config is mounted into the container. Override either via env for non-standard layouts.
 
 ## Type system
 
@@ -132,7 +156,7 @@ Design choices:
 | Server stderr | `stderr: "inherit"` - server diagnostics pass straight to the client's terminal; the kernel drains the pipe so a chatty tool can't block |
 | Notification dispatch | Callback registered via `onNotification()`, dispatched with optional chaining |
 | Tool list caching | `cachedTools: T[] \| null` in McpClient, null = not fetched, cleared on disconnect |
-| Config injection | `RAVEN_CONFIG` env var passed to spawned server via `Bun.spawn({ env })` |
+| Config injection | `RAVEN_CONFIG` env var passed to spawned server via `Bun.spawn({ env })`, only when the user set it or the guessed file exists |
 
 ## Test coverage
 

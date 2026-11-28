@@ -67,8 +67,9 @@ export class StdioTransport {
             );
         }
 
-        // Only inject RAVEN_CONFIG for a local binary; a wrapper command (docker)
-        // resolves config inside the container (SERVER_CONFIG is undefined there).
+        // Inject RAVEN_CONFIG only when there is a config to name: one the user
+        // set, or the server project's own file next to a local binary. In every
+        // other case the server runs its own lookup (see resolveServerConfig).
         const env: Record<string, string | undefined> = { ...process.env };
         if (SERVER_CONFIG) env.RAVEN_CONFIG = SERVER_CONFIG;
 
